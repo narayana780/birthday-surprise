@@ -32,24 +32,41 @@
 
 /* Mobile Scroll and Text Tuning */
 @media (max-width: 767px) {
+  /* Allow the stage to scroll vertically so nothing is clipped on small phones */
   .scene-five-stage {
-    height: 100vh !important;
+    height: auto !important;
     min-height: 100vh !important;
-    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
     position: relative !important;
     display: flex !important;
     justify-content: center !important;
-    align-items: center !important;
-    padding-bottom: 24px !important;
+    align-items: flex-start !important;
+    padding: 24px 0 40px !important;
     box-sizing: border-box !important;
   }
 
+  /* Flow container becomes static flow on mobile — no absolute centering */
   .scroll-flow-container {
-    --letter-btn-gap: 35px !important;
-    --btn-caption-gap: 25px !important;
+    --letter-btn-gap: 28px !important;
+    --btn-caption-gap: 22px !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    /* Width already min(90vw,450px) from base CSS */
+    height: auto !important; /* Let content dictate height */
+    margin: 0 auto !important;
   }
 
-  /* Reduce heavy shadows on mobile for performance */
+  /* Scroll itself adapts height to content on mobile */
+  .desk-letter,
+  .desk-scroll {
+    height: auto !important;
+    min-height: 520px !important;
+  }
+
+  /* Parchment body wrapper must also be auto height after unroll */
   .scroll-body-wrapper {
     box-shadow: 0 8px 25px rgba(20, 10, 4, 0.22) !important;
   }
@@ -61,13 +78,36 @@
   .letter-text span {
     will-change: opacity;
   }
+
+  /* Reduce font sizes slightly for narrow screens */
+  .letter-text {
+    font-size: clamp(14px, 4vw, 17px) !important;
+  }
+
+  .scroll-p {
+    font-size: clamp(14px, 4vw, 17px) !important;
+    margin-bottom: 14px !important;
+  }
+
+  .signoff-line-1,
+  .signoff-line-2 {
+    font-size: clamp(26px, 8vw, 36px) !important;
+  }
 }
 
-/* Small heights spacing reduction */
-@media (max-height: 680px) {
+/* Very small phones */
+@media (max-width: 380px) {
   .scroll-flow-container {
-    --letter-btn-gap: 25px !important;
+    --letter-btn-gap: 22px !important;
     --btn-caption-gap: 18px !important;
+  }
+}
+
+/* Small heights — landscape phones etc */
+@media (max-height: 680px) and (max-width: 767px) {
+  .scroll-flow-container {
+    --letter-btn-gap: 20px !important;
+    --btn-caption-gap: 16px !important;
   }
 }
 

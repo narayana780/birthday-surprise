@@ -1543,34 +1543,26 @@
 
     startAmbientTone();
 
-    // Scale calculation to guarantee viewport fitting on both desktop and mobile
+    // Scale calculation:
+    // - Mobile (<768px): CSS already makes width = min(90vw,450px) and position is relative,
+    //   so no JS scaling needed. Reset any lingering --scroll-scale.
+    // - Desktop: guard against very short viewports by scaling down if 900px column won't fit.
     const updateScrollScale = () => {
-      const isMobileDevice = window.innerWidth < 768;
-      if (isMobileDevice) {
-        // Mobile specifications:
-        // Width: 90vw (max 340px)
-        // Scroll aspect ratio is locked at 450px wide, 740px tall.
-        const targetWidth = Math.min(0.90 * window.innerWidth, 340);
-        const targetScrollHeight = Math.min(0.75 * window.innerHeight, 620);
-        
-        const scaleWidth = targetWidth / 450;
-        const scaleHeight = targetScrollHeight / 740;
-        
-        // Ensure everything fits in height: Flow container total height is 900px.
-        const scaleLimitBySpace = (window.innerHeight - 40) / 900;
-        
-        const scale = Math.min(scaleWidth, scaleHeight, scaleLimitBySpace);
+      if (window.innerWidth >= 768) {
+        // Only apply scale if the 900px-tall column would overflow the viewport height
+        const safeHeight = window.innerHeight - 60;
+        const scale = safeHeight < 900 ? safeHeight / 900 : 1;
         document.documentElement.style.setProperty('--scroll-scale', scale);
+        // Re-apply scale transform on desktop (removed from mobile via responsive CSS)
+        flowContainer.style.transform = `translate(-50%, -50%) scale(${scale})`;
       } else {
-        // Desktop specification: scale scroll flow to fit inside height if viewport is small (total flow height 900px + 60px padding = 960px)
-        const scaleWidth = (0.90 * window.innerWidth) / 450;
-        const scaleHeight = (window.innerHeight - 60) / 900;
-        const scale = Math.min(1, scaleWidth, scaleHeight);
-        document.documentElement.style.setProperty('--scroll-scale', scale);
+        // Mobile: no scale, let CSS min(90vw,450px) handle width
+        document.documentElement.style.setProperty('--scroll-scale', 1);
+        // transform is overridden to 'none' by responsive CSS
       }
     };
-    
-    // Add resize listener if not already added
+
+    // Add resize listener only once
     if (!window.scrollScaleListenerAdded) {
       window.addEventListener('resize', updateScrollScale);
       window.scrollScaleListenerAdded = true;
@@ -1583,23 +1575,21 @@
     const bottomRoller = letter.querySelector('.scroll-roller-bottom');
     const wrapper = letter.querySelector('.scroll-body-wrapper');
 
-    // Centered start rolled up positions (Scroll height: 740px, center: 370px, wood cap offset: 8px)
+    // Scroll height is fixed at 740px. Rollers start collapsed at center (370px).
     if (topRoller) gsap.set(topRoller, { top: 362, rotateX: 0 });
     if (bottomRoller) gsap.set(bottomRoller, { top: 362, rotateX: 0 });
     if (wrapper) gsap.set(wrapper, { top: 370, height: 0 });
 
-    // Simple scroll container fade-in (scroll container stays fixed, no resizing/scaling)
+    // Fade in the whole flow container (includes scroll + button placeholder + caption)
     gsap.fromTo(flowContainer,
       { opacity: 0 },
       { opacity: 1, duration: 0.95, ease: 'power2.inOut', force3D: true,
         onComplete: () => { flowContainer.style.pointerEvents = 'auto'; } }
     );
-    gsap.fromTo(letter,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.95, ease: 'power2.inOut', force3D: true }
-    );
+    // Also ensure the scroll itself starts visible (opacity:1 in CSS but GSAP may override)
+    gsap.set(letter, { opacity: 1 });
 
-    // Smooth opening unroll animation (unrolls outward over 1.35 seconds)
+    // Smooth opening unroll animation (1.35s after fade completes)
     gsap.delayedCall(0.95, () => {
       if (topRoller) gsap.to(topRoller, { top: 0, rotateX: -360, duration: 1.35, ease: 'power3.inOut', force3D: true });
       if (bottomRoller) gsap.to(bottomRoller, { top: 724, rotateX: 360, duration: 1.35, ease: 'power3.inOut', force3D: true });
@@ -1704,6 +1694,11 @@
 
     // Show Continue button (adjusted offset to 14.2s)
     gsap.delayedCall(14.2, () => {
+      // Read the gap value from the flow container's computed CSS variable
+      const btnGap = parseInt(
+        getComputedStyle(flowContainer).getPropertyValue('--letter-btn-gap').trim()
+      ) || 45;
+
       // Create the beautiful Continue button
       const continueBtn = document.createElement('button');
       continueBtn.id = 'letter-continue-btn';
@@ -1713,7 +1708,7 @@
       continueBtn.style.cssText = `
         position: relative;
         z-index: 20;
-        margin-top: var(--letter-btn-gap) !important;
+        margin-top: ${btnGap}px;
         padding: 0.75rem 2.4rem;
         font-family: 'Poppins', sans-serif;
         font-size: 1.05rem;

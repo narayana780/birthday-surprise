@@ -1918,10 +1918,12 @@ button { font: inherit; }
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(var(--scroll-scale, 1));
+  /* Responsive: 90vw on phone, capped at 450px on desktop */
+  width: min(90vw, 450px);
+  height: 900px;
+  /* Only Y-translate to centre; X is handled by left:50% + translateX(-50%) */
+  transform: translate(-50%, -50%);
   transform-origin: center center;
-  width: 450px;
-  height: 900px; /* Encloses scroll (740px), continue button (~50px), caption (~30px), and gaps (45px & 35px) */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1934,17 +1936,19 @@ button { font: inherit; }
   top: auto !important;
   left: auto !important;
   transform: none !important;
-  width: 450px;
+  /* Inherit full width of flow container */
+  width: 100%;
   height: 740px;
-  opacity: 1; /* Made visible, opacity is controlled by parent scroll-flow-container */
+  opacity: 1;
   z-index: 3;
 }
 
 .desk-scroll {
-  display: block; /* block layout for absolute unrolling coordinates */
+  display: block;
   position: relative;
-  width: 450px;
-  height: 740px; /* Increased by 120px to prevent signature cutoff */
+  /* Full width of parent which is already min(90vw, 450px) */
+  width: 100%;
+  height: 740px;
 }
 
 /* Wooden Roller styling */
@@ -2053,16 +2057,17 @@ button { font: inherit; }
 }
 
 .scroll-writing-area {
-  width: 315px; /* Locked width (70% of 450px) to prevent horizontal shifts or boundary overflow */
-  max-width: 82%;
+  /* Responsive: 70% of container width, never wider than 315px on desktop */
+  width: 70%;
+  max-width: 315px;
   height: 100%;
   margin: 0 auto;
-  padding: 35px 0 55px; /* 60px Top & 90px Bottom padding */
+  padding: 35px 16px 55px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* write from top to bottom */
-  text-align: center; /* centered horizontal text alignment */
+  justify-content: flex-start;
+  text-align: center;
 }
 
 .letter-text {
