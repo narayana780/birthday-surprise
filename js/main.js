@@ -59,7 +59,7 @@
 
     incomingScene.hidden           = false;
     incomingScene.style.visibility = 'visible';
-    gsap.set(incomingScene, { opacity: 0, y: 28, scale: 0.97 });
+    gsap.set(incomingScene, { opacity: 0, scale: 0.98, filter: 'blur(8px)' });
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -74,14 +74,14 @@
 
     if (outgoingScene) {
       tl.to(outgoingScene, {
-        opacity: 0, y: -28, scale: 0.97,
-        duration: 0.75, ease: 'power3.inOut'
+        opacity: 0, scale: 0.98, filter: 'blur(8px)',
+        duration: 0.88, ease: 'power2.inOut' // 15% longer than 0.75s
       }, 0);
     }
 
     tl.to(incomingScene, {
-      opacity: 1, y: 0, scale: 1,
-      duration: 0.75, ease: 'power3.out'
+      opacity: 1, scale: 1, filter: 'blur(0px)',
+      duration: 0.88, ease: 'power3.out'
     }, 0);
   };
 
@@ -196,7 +196,7 @@
       }
     }
 
-    gsap.to(passcodePanel, { opacity: 1, y: 0, scale: 1, duration: 0.85, ease: 'back.out(1.4)' });
+    gsap.to(passcodePanel, { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' });
   };
 
   /* ─── Gift Box Open — Premium Disney/Apple Sequence ─── */
@@ -223,18 +223,18 @@
     gsap.killTweensOf(giftBox);
     gsap.killTweensOf(closedImg);
 
-    // Step 1: Scale 1 -> 1.04, duration 0.2s
+    // Step 1: Scale 1 -> 1.04, duration 0.23s
     // Step 2: Glow increases slightly
     tl.to(giftBox, {
       scale: 1.04,
-      duration: 0.2,
-      ease: 'power2.out'
+      duration: 0.23,
+      ease: 'power3.out'
     }, 0)
     .to(glowSource, {
       opacity: 0.9,
       scale: 1.1,
-      duration: 0.2,
-      ease: 'power2.out'
+      duration: 0.23,
+      ease: 'power3.out'
     }, 0)
 
     // Swap closed image for base & lid layers
@@ -248,25 +248,25 @@
         lidImg.style.display = 'block';
         gsap.set(lidImg, { opacity: 1, y: 0, scale: 1 });
       }
-    }, null, 0.2)
+    }, null, 0.23)
 
-    // Step 3: Wait 0.15s (starts at 0.35s overall)
-    // Step 4: Lift ONLY the lid. Translate Y: -35px, scale 1.02, duration 0.45s, ease power2.out
+    // Step 3: Wait 0.17s (starts at 0.40s overall)
+    // Step 4: Lift ONLY the lid. Translate Y: -35px, scale 1.02, duration 0.52s, ease power3.out
     .to(lidImg, {
       y: -35,
       scale: 1.02,
-      duration: 0.45,
-      ease: 'power2.out'
-    }, 0.35)
+      duration: 0.52,
+      ease: 'power3.out'
+    }, 0.40)
 
-    // Step 5: Soft pink magical light: opacity 0 -> 1, scale 0.8 -> 1.3, duration 0.4s, ease power2.out
+    // Step 5: Soft pink magical light: opacity 0 -> 1, scale 0.8 -> 1.3, duration 0.46s, ease power3.out
     .fromTo(glowSource, 
       { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1.3, duration: 0.4, ease: 'power2.out' },
-      0.35
+      { opacity: 1, scale: 1.3, duration: 0.46, ease: 'power3.out' },
+      0.40
     )
 
-    // Step 6: Around 20 small hearts and 20 gold sparkles float upward slowly. No explosion, no spinning, no chaotic particles.
+    // Step 6: Around 20 small hearts and 20 gold sparkles float upward slowly.
     .call(() => {
       const hearts = ['♥','💜','💕','💖','♥'];
       const sparkles = ['✦','✧','★','✨','⭐'];
@@ -296,20 +296,20 @@
           tlPart.to(el, {
             opacity: rand(0.65, 0.9),
             scale: rand(0.8, 1.3),
-            duration: 0.35,
+            duration: 0.4,
             ease: 'sine.out'
           }, 0)
           .to(el, {
             y: -riseDist,
             x: driftX,
-            duration: rand(1.8, 2.6),
-            ease: 'power1.out'
+            duration: rand(2.1, 3.0),
+            ease: 'power3.out'
           }, 0)
           .to(el, {
             opacity: 0,
-            duration: 0.6,
-            ease: 'power1.in'
-          }, '>-0.6');
+            duration: 0.7,
+            ease: 'power2.inOut'
+          }, '>-0.7');
         }
       };
 
@@ -317,21 +317,21 @@
       spawnDriftingParticle(hearts, ['#ff5dae', '#ff80c0', '#e040fb', '#ff80ab'], 20);
       // 20 gold sparkles
       spawnDriftingParticle(sparkles, ['#f9c74f', '#ffe066', '#ffc107', '#ffffff'], 20);
-    }, null, 0.35)
+    }, null, 0.40)
 
-    // Step 7: Fade entire gift out. Opacity 1 -> 0, scale 1 -> 1.03, duration 0.35s (starts after 0.8s, so at 1.15s)
+    // Step 7: Fade entire gift out. Opacity 1 -> 0, scale 1 -> 1.03, duration 0.4s (starts after 0.92s, so at 1.32s)
     .to(giftBox, {
       opacity: 0,
       scale: 1.03,
-      duration: 0.35,
+      duration: 0.4,
       ease: 'power2.inOut'
-    }, 1.15)
+    }, 1.32)
     .to(textWrap, {
       opacity: 0,
       y: 8,
-      duration: 0.3,
-      ease: 'power2.in'
-    }, 1.15);
+      duration: 0.35,
+      ease: 'power2.inOut'
+    }, 1.32);
   };
 
   /* ─── Show Gift Box ───────────────────────────────────────── */
@@ -346,8 +346,8 @@
     giftContainer.style.display    = 'flex';
 
     gsap.fromTo(giftContainer,
-      { opacity: 0, scale: 0.7, y: 35 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.85, ease: 'back.out(1.6)' }
+      { opacity: 0, scale: 0.95, y: 25 },
+      { opacity: 1, scale: 1, y: 0, duration: 1.0, ease: 'power3.out' }
     );
 
     // Gently float up and down forever (only 5px movement, duration: 3s)
@@ -669,12 +669,12 @@
     quotes.forEach((text) => {
       tl.call(() => { quoteEl.textContent = text; })
         .fromTo(quoteEl,
-          { opacity: 0, y: 22, filter: 'blur(4px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.75, ease: 'power3.out' }
+          { opacity: 0, y: 15, filter: 'blur(4px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.88, ease: 'power3.out' }
         )
         .to(quoteEl, {
-          opacity: 0, y: -22, filter: 'blur(4px)',
-          duration: 0.6, delay: 2.2, ease: 'power3.in'
+          opacity: 0, y: -15, filter: 'blur(4px)',
+          duration: 0.7, delay: 2.5, ease: 'power2.inOut'
         });
     });
   };
@@ -767,36 +767,36 @@
         gsap.killTweensOf(numEl);
         // Scale in with bounce
         gsap.fromTo(numEl,
-          { opacity: 0, scale: 0.2, filter: 'blur(12px)' },
-          { opacity: 1, scale: 1.1, filter: 'blur(0px)', duration: 0.4, ease: 'back.out(2)' }
+          { opacity: 0, scale: 0.85, filter: 'blur(12px)' },
+          { opacity: 1, scale: 1.05, filter: 'blur(0px)', duration: 0.46, ease: 'power3.out' }
         );
         // Pulse
         gsap.to(numEl, {
-          scale: 0.95, duration: 0.25, delay: 0.5, ease: 'power2.inOut', yoyo: true, repeat: 1
+          scale: 0.97, duration: 0.28, delay: 0.58, ease: 'power2.inOut', yoyo: true, repeat: 1
         });
         // Exit
-        gsap.to(numEl, { opacity: 0, scale: 1.6, filter: 'blur(14px)', duration: 0.4, delay: 0.9, ease: 'power2.in' });
+        gsap.to(numEl, { opacity: 0, scale: 1.25, filter: 'blur(14px)', duration: 0.46, delay: 1.04, ease: 'power2.inOut' });
       }
 
-      // Animate neon ring drawing itself (fills over 1 second)
+      // Animate neon ring drawing itself (fills over 1.15 seconds)
       const ring = svg.querySelectorAll('circle')[1];
       if (ring) {
         gsap.fromTo(ring,
           { strokeDashoffset: 276.5 },
-          { strokeDashoffset: 0, duration: 1.0, ease: 'power2.inOut' }
+          { strokeDashoffset: 0, duration: 1.15, ease: 'power2.inOut' }
         );
       }
       // SVG slow spin
       gsap.fromTo(svg,
         { rotate: 0 },
-        { rotate: 360, transformOrigin: '50% 50%', duration: 1.2, ease: 'power1.out' }
+        { rotate: 360, transformOrigin: '50% 50%', duration: 1.38, ease: 'power2.out' }
       );
 
       // Inner element scale pulse (camera zoom feel)
       gsap.fromTo(inner,
-        { scale: 0.92 },
-        { scale: 1.08, duration: 0.35, ease: 'back.out(1.5)',
-          onComplete: () => gsap.to(inner, { scale: 1.0, duration: 0.4, ease: 'power2.out' }) }
+        { scale: 0.95 },
+        { scale: 1.05, duration: 0.4, ease: 'power3.out',
+          onComplete: () => gsap.to(inner, { scale: 1.0, duration: 0.46, ease: 'power3.out' }) }
       );
 
       // Particle explosions on each tick
@@ -804,9 +804,9 @@
 
       idx++;
       if (idx < numbers.length) {
-        gsap.delayedCall(1.3, playStep);
+        gsap.delayedCall(1.5, playStep);
       } else {
-        gsap.delayedCall(1.35, () => {
+        gsap.delayedCall(1.55, () => {
           // Magical pink-gold glow flash transition
           const flash = sceneFour.querySelector('.scene-flash');
           if (flash) {
@@ -821,8 +821,8 @@
               {
                 opacity: 1,
                 scale: 1.0,
-                duration: 0.5,
-                ease: 'power2.inOut',
+                duration: 0.6,
+                ease: 'power3.out',
                 onComplete: () => {
                   setSceneClass('scene-four-active');
 
@@ -834,8 +834,8 @@
 
                   gsap.to(flash, {
                     opacity: 0,
-                    duration: 1.0,
-                    ease: 'power2.out'
+                    duration: 1.15,
+                    ease: 'power2.inOut'
                   });
                 }
               }
@@ -855,7 +855,7 @@
       pr.className = 'light-pulse-ring';
       pulseLayer.appendChild(pr);
       gsap.fromTo(pr, { scale: 0.2, opacity: 0.75 }, {
-        scale: 7, opacity: 0, duration: 1.8, ease: 'power2.out',
+        scale: 7, opacity: 0, duration: 2.1, ease: 'power3.out',
         onComplete: () => pr.remove()
       });
     };
@@ -889,12 +889,12 @@
       numEl.textContent = 'Get Ready ❤️';
       numEl.classList.add('get-ready-text');
       gsap.fromTo(numEl,
-        { opacity: 0, scale: 0.4, filter: 'blur(16px)' },
-        { opacity: 1, scale: 1.0, filter: 'blur(0px)', duration: 0.75, ease: 'back.out(1.4)' }
+        { opacity: 0, scale: 0.85, filter: 'blur(16px)' },
+        { opacity: 1, scale: 1.0, filter: 'blur(0px)', duration: 0.9, ease: 'power3.out' }
       );
       gsap.to(numEl, {
-        opacity: 0, scale: 1.3, filter: 'blur(12px)',
-        duration: 0.5, delay: 1.5, ease: 'power2.in',
+        opacity: 0, scale: 1.15, filter: 'blur(12px)',
+        duration: 0.6, delay: 1.7, ease: 'power2.inOut',
         onComplete: () => { numEl.classList.remove('get-ready-text'); playStep(); }
       });
     } else {
@@ -1200,20 +1200,20 @@
 
     /* ── Sequential text reveal — blur/fade/glow/scale ── */
     const textTl = gsap.timeline({
-      delay: 1.5, // Start after the cake rises (which has 1.5s duration)
+      delay: 1.73, // Start after the cake rises (which has 1.75s duration)
       onComplete: () => {
-        // Hold the complete composition for 3.5 seconds, then stop fireworks and transition
-        gsap.delayedCall(3.5, () => {
+        // Hold the complete composition for 4.0 seconds, then stop fireworks and transition
+        gsap.delayedCall(4.0, () => {
           stopFireworks();
           revealSceneFive();
         });
       }
     });
 
-    if (introEl)    gsap.set(introEl,    { opacity: 0, scale: 0.6, filter: 'blur(15px)', y: 20 });
-    if (greetingEl) gsap.set(greetingEl, { opacity: 0, scale: 0.6, filter: 'blur(15px)', y: 20 });
-    if (nameEl)     gsap.set(nameEl,     { opacity: 0, scale: 0.6, filter: 'blur(20px)', y: 20 });
-    if (heartEl)    gsap.set(heartEl,    { opacity: 0, scale: 0.5, filter: 'blur(15px)', y: 20 });
+    if (introEl)    gsap.set(introEl,    { opacity: 0, scale: 0.9, filter: 'blur(15px)', y: 15 });
+    if (greetingEl) gsap.set(greetingEl, { opacity: 0, scale: 0.9, filter: 'blur(15px)', y: 15 });
+    if (nameEl)     gsap.set(nameEl,     { opacity: 0, scale: 0.9, filter: 'blur(20px)', y: 15 });
+    if (heartEl)    gsap.set(heartEl,    { opacity: 0, scale: 0.85, filter: 'blur(15px)', y: 15 });
 
     textTl
       // 1. Today's your day ❤️
@@ -1222,16 +1222,16 @@
         opacity: 1, scale: 1.0, filter: 'blur(0px)', y: 0,
         letterSpacing: '0.06em',
         textShadow: '0 0 20px rgba(255,93,174,0.8), 0 0 40px rgba(255,93,174,0.4)',
-        duration: 1.2, ease: 'power3.out'
+        duration: 1.38, ease: 'power3.out'
       })
-      // Start fireworks, sparkles, hearts, and confetti exactly 300ms after Today's your day starts appearing
+      // Start fireworks, sparkles, hearts, and confetti exactly 350ms after Today's your day starts appearing
       .add(() => {
         startSparkles();
         startConfetti();
         startHearts();
         startFireworks();
-      }, 0.3)
-      .to(introEl, { opacity: 0, filter: 'blur(10px)', scale: 1.15, y: -20, duration: 0.6, delay: 1.5, ease: 'power3.in' })
+      }, 0.35)
+      .to(introEl, { opacity: 0, filter: 'blur(10px)', scale: 1.1, y: -15, duration: 0.7, delay: 1.7, ease: 'power2.inOut' })
 
       // 2. Happy Birthday
       .call(() => { if (greetingEl) greetingEl.textContent = 'Happy Birthday'; })
@@ -1239,62 +1239,62 @@
         opacity: 1, scale: 1.0, filter: 'blur(0px)', y: 0,
         letterSpacing: '0.08em',
         textShadow: '0 0 25px rgba(255,255,255,0.8), 0 0 50px rgba(255,255,255,0.4)',
-        duration: 1.2, ease: 'power3.out'
+        duration: 1.38, ease: 'power3.out'
       })
 
       // 3. KEERTHI
-      .add(() => { if (nameEl) nameEl.textContent = birthdayGirlName; }, '+=1.0')
+      .add(() => { if (nameEl) nameEl.textContent = birthdayGirlName; }, '+=1.15')
       .to(nameEl, {
         opacity: 1, scale: 1.0, filter: 'blur(0px)', y: 0,
-        duration: 1.2, ease: 'power3.out'
+        duration: 1.38, ease: 'power3.out'
       }, '<')
 
       // 4. Heart ❤️
       .to(heartEl, {
         opacity: 1, scale: 1.0, filter: 'blur(0px)', y: 0,
         textShadow: '0 0 30px rgba(255,51,102,0.9), 0 0 60px rgba(255,51,102,0.5)',
-        duration: 1.0, ease: 'back.out(2)'
-      }, '+=0.8');
+        duration: 1.15, ease: 'power3.out' // Smoother entry, no snapping
+      }, '+=0.92');
 
     // Flash transition fade
     if (flash) {
-      gsap.fromTo(flash, { opacity: 0.35 }, { opacity: 0, duration: 0.6, ease: 'power2.out' });
+      gsap.fromTo(flash, { opacity: 0.35 }, { opacity: 0, duration: 0.7, ease: 'power3.out' });
     }
 
     // Bloom lighting fades in
     const bloomEl = sceneFour.querySelector('.bloom-lighting');
     if (bloomEl) {
-      gsap.fromTo(bloomEl, { opacity: 0 }, { opacity: 1, duration: 3.0, ease: 'power2.out' });
+      gsap.fromTo(bloomEl, { opacity: 0 }, { opacity: 1, duration: 3.45, ease: 'power3.out' });
     }
 
     // Cake rises from bottom with bounce, candles light sequentially, cake gently bounces, glow increases
     if (cakeRise) {
       gsap.fromTo(cakeRise,
-        { y: 320, opacity: 0, scale: 0.8 },
+        { y: 320, opacity: 0, scale: 0.95 },
         {
-          y: 0, opacity: 1, scale: 1, duration: 1.5, ease: 'power3.out',
+          y: 0, opacity: 1, scale: 1, duration: 1.73, ease: 'power3.out',
           onComplete: () => {
             // Candles light sequentially
             const candles = Array.from(sceneFour.querySelectorAll('.candle'));
             const candlesTl = gsap.timeline({
               onComplete: () => {
-                // Cake squash and stretch bounce
+                // Cake squash and stretch bounce (smoother)
                 gsap.timeline()
-                  .to(cakeRise, { scaleY: 0.94, scaleX: 1.06, duration: 0.2, ease: 'sine.inOut' })
-                  .to(cakeRise, { y: -18, scaleY: 1.04, scaleX: 0.96, duration: 0.35, ease: 'power2.out' })
-                  .to(cakeRise, { y: 0, scaleY: 1, scaleX: 1, duration: 0.45, ease: 'bounce.out' })
+                  .to(cakeRise, { scaleY: 0.96, scaleX: 1.04, duration: 0.23, ease: 'sine.inOut' })
+                  .to(cakeRise, { y: -12, scaleY: 1.02, scaleX: 0.98, duration: 0.4, ease: 'power3.out' })
+                  .to(cakeRise, { y: 0, scaleY: 1, scaleX: 1, duration: 0.52, ease: 'sine.out' })
                   .call(() => {
                     // Ambient glow swell
                     gsap.to(cakeRise, {
                       filter: 'drop-shadow(0 20px 45px rgba(0,0,0,0.6)) drop-shadow(0 0 35px rgba(249,199,79,0.5))',
-                      duration: 1.5,
-                      ease: 'power2.out'
+                      duration: 1.73,
+                      ease: 'power3.out'
                     });
 
                     // Very tiny breathing animation (scale 1 -> 1.015 -> 1, repeat forever, no y drift)
                     gsap.to(cakeRise, {
                       scale: 1.015,
-                      duration: 1.25,
+                      duration: 1.44,
                       repeat: -1,
                       yoyo: true,
                       ease: 'sine.inOut',
@@ -1309,11 +1309,11 @@
                 const fl = candle.querySelector('.flame');
                 if (fl) {
                   gsap.set(fl, { opacity: 0, scaleY: 0 });
-                  gsap.to(fl, { opacity: 1, scaleY: 1, duration: 0.4, ease: 'back.out(2)' });
+                  gsap.to(fl, { opacity: 1, scaleY: 1, duration: 0.46, ease: 'power3.out' });
                 }
                 const gl = candle.querySelector('.candle-glow');
-                if (gl) gsap.to(gl, { opacity: 1, duration: 0.3 });
-              }, null, `+=${ci === 0 ? 0 : 0.35}`);
+                if (gl) gsap.to(gl, { opacity: 1, duration: 0.35 });
+              }, null, `+=${ci === 0 ? 0 : 0.4}`);
             });
           }
         }
@@ -1457,18 +1457,18 @@
     // Simple scroll container fade-in (scroll container stays fixed, no resizing/scaling)
     gsap.fromTo(letter,
       { opacity: 0 },
-      { opacity: 1, duration: 0.8, ease: 'power2.out' }
+      { opacity: 1, duration: 0.95, ease: 'power2.out' }
     );
 
-    // Ancient royal scroll unrolls downward over 2 seconds (starts after fade-in at 0.8s)
-    gsap.delayedCall(0.8, () => {
-      if (topRoller) gsap.to(topRoller, { rotateX: -360, duration: 2.0, ease: 'power2.inOut' });
-      if (bottomRoller) gsap.to(bottomRoller, { top: 604, rotateX: 360, duration: 2.0, ease: 'power2.inOut' });
-      if (wrapper) gsap.to(wrapper, { height: 592, duration: 2.0, ease: 'power2.inOut' });
+    // Ancient royal scroll unrolls downward over 2.3 seconds (starts after fade-in at 0.95s)
+    gsap.delayedCall(0.95, () => {
+      if (topRoller) gsap.to(topRoller, { rotateX: -360, duration: 2.3, ease: 'power2.inOut' });
+      if (bottomRoller) gsap.to(bottomRoller, { top: 'calc(100% - 16px)', rotateX: 360, duration: 2.3, ease: 'power2.inOut' });
+      if (wrapper) gsap.to(wrapper, { height: 'calc(100% - 28px)', duration: 2.3, ease: 'power2.inOut' });
     });
 
-    // Typewriter animation starts 400ms after scroll has completely opened (0.8 + 2.0 = 2.8s + 400ms = 3.2s)
-    gsap.delayedCall(3.2, async () => {
+    // Typewriter animation starts 400ms after scroll has completely opened (0.95 + 2.3 = 3.25s + 400ms = 3.65s)
+    gsap.delayedCall(3.65, async () => {
       const bodyTextStr = "Thank you for being the gentle light in my life.\n\nYour kindness, warmth, and steady love have always made every ordinary day feel special.\n\nI hope this little note reminds you how deeply cherished you are.";
 
       letterText.innerHTML = '';
@@ -1505,7 +1505,7 @@
       if (sigLine1) {
         gsap.fromTo(sigLine1,
           { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out' }
         );
       }
       
@@ -1516,26 +1516,26 @@
       if (sigLine2) {
         gsap.fromTo(sigLine2,
           { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 1.0, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out' }
         );
       }
     });
 
-    // Zoom out + caption after typing completes
-    gsap.delayedCall(13.8, () => {
-      gsap.to(stage, { scale: 0.94, duration: 2.8, ease: 'power2.out' });
+    // Zoom out + caption after typing completes (adjusted offset from 13.8 to 16.0s)
+    gsap.delayedCall(16.0, () => {
+      gsap.to(stage, { scale: 0.94, duration: 3.2, ease: 'power3.out' });
       if (caption) {
         caption.style.pointerEvents = 'auto';
         gsap.fromTo(caption,
           { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }
+          { opacity: 1, y: 0, duration: 1.4, ease: 'power3.out' }
         );
       }
       fadeAmbientTone();
     });
 
-    // Show Continue button
-    gsap.delayedCall(16.0, () => {
+    // Show Continue button (adjusted offset from 16.0 to 18.5s)
+    gsap.delayedCall(18.5, () => {
       // Create the beautiful Continue button
       const continueBtn = document.createElement('button');
       continueBtn.id = 'letter-continue-btn';
@@ -1623,7 +1623,7 @@
               t3.style.cssText = `margin:0; font-family:'Poppins',sans-serif; font-size:0.8rem; color:rgba(249,199,79,0.6); letter-spacing:0.08em;`;
               ending.appendChild(t1); ending.appendChild(t2); ending.appendChild(t3);
               document.body.appendChild(ending);
-              gsap.to(ending, { opacity: 1, duration: 1.5, ease: 'power2.out' });
+              gsap.to(ending, { opacity: 1, duration: 1.73, ease: 'power3.out' });
 
               // Gentle floating hearts on ending
               const syms = ['♥','✦','♡'];
