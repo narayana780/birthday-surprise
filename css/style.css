@@ -2057,7 +2057,7 @@ button { font: inherit; }
   max-width: 82%;
   height: 100%;
   margin: 0 auto;
-  padding: 60px 0 90px; /* 60px Top & 90px Bottom padding */
+  padding: 35px 0 55px; /* 60px Top & 90px Bottom padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -2071,8 +2071,8 @@ button { font: inherit; }
   font-style: italic;
   font-weight: 500;
   color: #3b2416;
-  font-size: clamp(18px, 2.4vw, 24px); /* Font size: 24px desktop */
-  line-height: 1.9; /* line-height: 1.9 */
+  font-size: clamp(17px, 2.2vw, 22px); /* Font size: 24px desktop */
+  line-height: 1.55; /* line-height: 1.9 */
   letter-spacing: 0.4px; /* letter-spacing: 0.4px */
   white-space: pre-line; /* preserves line breaks naturally */
   word-break: normal;
