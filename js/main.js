@@ -34,6 +34,60 @@
   /* ─── Helpers ────────────────────────────────────────────── */
   const rand = (min, max) => min + Math.random() * (max - min);
 
+  const isMobile = window.innerWidth < 768 || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+  const spanPool = {
+    pool: [],
+    get(parent, className) {
+      let el;
+      if (this.pool.length > 0) {
+        el = this.pool.pop();
+        if (className) el.className = className;
+        el.style.cssText = '';
+        el.style.display = 'inline-block';
+        if (el.parentNode !== parent) {
+          parent.appendChild(el);
+        }
+      } else {
+        el = document.createElement('span');
+        if (className) el.className = className;
+        parent.appendChild(el);
+      }
+      return el;
+    },
+    release(el) {
+      if (el) {
+        el.style.display = 'none';
+        this.pool.push(el);
+      }
+    }
+  };
+
+  const clearLayerToPool = (layer) => {
+    if (!layer) return;
+    const spans = Array.from(layer.querySelectorAll('span'));
+    spans.forEach((span) => {
+      gsap.killTweensOf(span);
+      spanPool.release(span);
+    });
+    layer.innerHTML = '';
+  };
+
+  const toggleSceneTweens = (scene, shouldPlay) => {
+    if (!scene) return;
+    const elements = scene.querySelectorAll('*');
+    elements.forEach((el) => {
+      const tweens = gsap.getTweensOf(el);
+      tweens.forEach((t) => {
+        if (shouldPlay) {
+          t.play();
+        } else {
+          t.pause();
+        }
+      });
+    });
+  };
+
   const setSceneClass = (sceneName) => {
     document.body.classList.remove(
       'scene-one-active','scene-two-active','scene-three-active',
@@ -50,6 +104,7 @@
       scene.style.visibility = shouldShow ? 'visible' : 'hidden';
       scene.style.opacity    = shouldShow ? '1' : '0';
       if (shouldShow) gsap.set(scene, { y: 0, scale: 1 });
+      toggleSceneTweens(scene, shouldShow);
     });
   };
 
@@ -60,6 +115,7 @@
     incomingScene.hidden           = false;
     incomingScene.style.visibility = 'visible';
     gsap.set(incomingScene, { opacity: 0, scale: 0.98, filter: 'blur(8px)' });
+    toggleSceneTweens(incomingScene, true);
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -67,8 +123,10 @@
           outgoingScene.hidden           = true;
           outgoingScene.style.visibility = 'hidden';
           gsap.set(outgoingScene, { opacity: 0 });
+          toggleSceneTweens(outgoingScene, false);
         }
         if (onComplete) onComplete();
+        tl.kill();
       }
     });
 
@@ -96,19 +154,19 @@
       if (magicalParticles) {
         const syms = ['♥','✦','✧','♡'];
         const colors = ['rgba(233,30,140,0.6)', 'rgba(249,199,79,0.5)', 'rgba(255,182,193,0.7)'];
-        for (let i = 0; i < 40; i++) {
-          const p = document.createElement('span');
+        const heartCount = isMobile ? 16 : 40;
+        for (let i = 0; i < heartCount; i++) {
+          const p = spanPool.get(magicalParticles, 'magical-particle-piece');
           p.textContent = syms[i % syms.length];
           p.style.cssText = `
             position:absolute; display:inline-block;
             font-size:${rand(0.6, 1.4)}rem;
             color:${colors[i % colors.length]};
-            text-shadow: 0 0 12px currentColor;
+            text-shadow: ${isMobile ? 'none' : '0 0 12px currentColor'};
             left:${rand(0, 100)}%; top:${rand(0, 100)}%;
             pointer-events:none;
             opacity: 0;
           `;
-          magicalParticles.appendChild(p);
 
           gsap.to(p, {
             y: `-=${rand(40, 100)}vh`,
@@ -117,31 +175,33 @@
             opacity: rand(0.3, 0.8),
             duration: rand(6, 14),
             repeat: -1, yoyo: true, ease: 'sine.inOut',
-            delay: rand(0, 5)
+            delay: rand(0, 5),
+            force3D: true
           });
         }
       }
 
       // Gold Sparkles
       if (goldSparkles) {
-        for (let s = 0; s < 30; s++) {
-          const dot = document.createElement('span');
+        const sparkleCount = isMobile ? 12 : 30;
+        for (let s = 0; s < sparkleCount; s++) {
+          const dot = spanPool.get(goldSparkles, 'gold-sparkle-dot');
           dot.style.cssText = `
             position:absolute;
             width:${rand(2,5)}px; height:${rand(2,5)}px;
             left:${rand(10,90)}%; top:${rand(10,90)}%;
             background: #f9c74f;
             border-radius:50%;
-            box-shadow: 0 0 ${rand(8,16)}px #f9c74f;
+            box-shadow: ${isMobile ? '0 0 4px #f9c74f' : '0 0 ' + rand(8,16) + 'px #f9c74f'};
             opacity: 0;
           `;
-          goldSparkles.appendChild(dot);
           gsap.to(dot, {
             opacity: rand(0.2, 0.9),
             scale: rand(0.5, 2.0),
             duration: rand(1.0, 3.0),
             repeat: -1, yoyo: true, ease: 'sine.inOut',
-            delay: rand(0, 4)
+            delay: rand(0, 4),
+            force3D: true
           });
         }
       }
@@ -158,6 +218,7 @@
       gsap.killTweensOf(giftContainer);
       gsap.to(giftContainer, {
         opacity: 0, y: -20, scale: 0.9, duration: 0.4, ease: 'power2.in',
+        force3D: true,
         onComplete: () => {
           giftContainer.style.visibility = 'hidden';
           giftContainer.style.display    = 'none';
@@ -172,8 +233,9 @@
     const particles = passcodePanel.querySelector('.passcode-particles');
     if (particles && !prefersReducedMotion) {
       const syms = ['✦','♥','✧','♡'];
-      for (let i = 0; i < 12; i++) {
-        const p = document.createElement('span');
+      const panelParticleCount = isMobile ? 5 : 12;
+      for (let i = 0; i < panelParticleCount; i++) {
+        const p = spanPool.get(particles, 'passcode-particle-piece');
         p.textContent = syms[i % syms.length];
         p.style.cssText = `
           position:absolute;
@@ -183,7 +245,6 @@
           color: ${Math.random() > 0.5 ? 'rgba(249,199,79,0.5)' : 'rgba(233,30,140,0.5)'};
           pointer-events:none;
         `;
-        particles.appendChild(p);
         gsap.to(p, {
           y: `-${rand(120, 160)}vh`,
           x: `${rand(-30, 30)}px`,
@@ -191,12 +252,13 @@
           duration: rand(4, 8),
           repeat: -1,
           delay: i * 0.4,
-          ease: 'none'
+          ease: 'none',
+          force3D: true
         });
       }
     }
 
-    gsap.to(passcodePanel, { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out' });
+    gsap.to(passcodePanel, { opacity: 1, y: 0, scale: 1, duration: 1.0, ease: 'power3.out', force3D: true });
   };
 
   /* ─── Gift Box Open — Premium Disney/Apple Sequence ─── */
@@ -266,14 +328,15 @@
       0.40
     )
 
-    // Step 6: Around 20 small hearts and 20 gold sparkles float upward slowly.
+    // Step 6: Around 20 small hearts and 20 gold sparkles float upward slowly. (Reduced to 8 on mobile)
     .call(() => {
       const hearts = ['♥','💜','💕','💖','♥'];
       const sparkles = ['✦','✧','★','✨','⭐'];
 
       const spawnDriftingParticle = (symbols, colorArray, count) => {
-        for (let i = 0; i < count; i++) {
-          const el = document.createElement('span');
+        const adjustedCount = isMobile ? Math.round(count * 0.4) : count;
+        for (let i = 0; i < adjustedCount; i++) {
+          const el = spanPool.get(sceneOne, 'gift-drift-particle');
           el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
           el.style.cssText = `
             position: absolute;
@@ -283,13 +346,12 @@
             color: ${colorArray[Math.floor(Math.random() * colorArray.length)]};
             pointer-events: none;
             z-index: 25;
-            text-shadow: 0 0 10px currentColor;
+            text-shadow: ${isMobile ? 'none' : '0 0 10px currentColor'};
             opacity: 0;
           `;
-          sceneOne.appendChild(el);
 
           // Natural slow vertical rise with gentle horizontal wave sway
-          const tlPart = gsap.timeline({ onComplete: () => el.remove() });
+          const tlPart = gsap.timeline({ onComplete: () => spanPool.release(el) });
           const riseDist = rand(80, 180);
           const driftX = rand(-30, 30);
 
@@ -297,18 +359,21 @@
             opacity: rand(0.65, 0.9),
             scale: rand(0.8, 1.3),
             duration: 0.4,
-            ease: 'sine.out'
+            ease: 'sine.out',
+            force3D: true
           }, 0)
           .to(el, {
             y: -riseDist,
             x: driftX,
             duration: rand(2.1, 3.0),
-            ease: 'power3.out'
+            ease: 'power3.out',
+            force3D: true
           }, 0)
           .to(el, {
             opacity: 0,
             duration: 0.7,
-            ease: 'power2.inOut'
+            ease: 'power2.inOut',
+            force3D: true
           }, '>-0.7');
         }
       };
@@ -324,13 +389,15 @@
       opacity: 0,
       scale: 1.03,
       duration: 0.4,
-      ease: 'power2.inOut'
+      ease: 'power2.inOut',
+      force3D: true
     }, 1.32)
     .to(textWrap, {
       opacity: 0,
       y: 8,
       duration: 0.35,
-      ease: 'power2.inOut'
+      ease: 'power2.inOut',
+      force3D: true
     }, 1.32);
   };
 
@@ -347,7 +414,7 @@
 
     gsap.fromTo(giftContainer,
       { opacity: 0, scale: 0.95, y: 25 },
-      { opacity: 1, scale: 1, y: 0, duration: 1.0, ease: 'power3.out' }
+      { opacity: 1, scale: 1, y: 0, duration: 1.0, ease: 'power3.out', force3D: true }
     );
 
     // Gently float up and down forever (only 5px movement, duration: 3s)
@@ -357,7 +424,8 @@
       repeat: -1,
       yoyo: true,
       ease: 'sine.inOut',
-      delay: 0.4
+      delay: 0.4,
+      force3D: true
     });
 
     // Subtle breathing drop shadow glow pulse
@@ -372,24 +440,30 @@
           duration: 3.2,
           repeat: -1,
           yoyo: true,
-          ease: 'sine.inOut'
+          ease: 'sine.inOut',
+          force3D: true
         });
 
         // Breathing drop shadow glow pulse
-        gsap.to(giftBox, {
-          filter: 'drop-shadow(0 0 60px rgba(240, 98, 146, 0.7)) drop-shadow(0 32px 64px rgba(0,0,0,0.5))',
-          duration: 2.0,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
-        });
+        if (!isMobile) {
+          gsap.to(giftBox, {
+            filter: 'drop-shadow(0 0 60px rgba(240, 98, 146, 0.7)) drop-shadow(0 32px 64px rgba(0,0,0,0.5))',
+            duration: 2.0,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+          });
+        } else {
+          gsap.set(giftBox, { filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.4))' });
+        }
 
         // Glow source gentle pulse
         const glowSrc = giftBox.querySelector('#gift-glow-source');
         if (glowSrc) {
           gsap.to(glowSrc, {
             scale: 1.15, opacity: 0.8, duration: 2.0,
-            repeat: -1, yoyo: true, ease: 'sine.inOut'
+            repeat: -1, yoyo: true, ease: 'sine.inOut',
+            force3D: true
           });
         }
       }
@@ -469,13 +543,22 @@
   const revealSceneTwo = () => {
     if (!sceneOne || !sceneTwo) return;
     setSceneClass('scene-two-active');
-    transitionScene(sceneTwo, sceneOne, () => initSceneTwo());
+    transitionScene(sceneTwo, sceneOne, () => {
+      clearLayerToPool(sceneOne.querySelector('.magical-particles'));
+      clearLayerToPool(sceneOne.querySelector('.gold-sparkles'));
+      clearLayerToPool(sceneOne.querySelector('.passcode-particles'));
+      initSceneTwo();
+    });
   };
 
   const revealSceneThree = () => {
     if (!sceneTwo || !sceneThree) return;
     setSceneClass('scene-three-active');
-    transitionScene(sceneThree, sceneTwo, () => initSceneThree());
+    transitionScene(sceneThree, sceneTwo, () => {
+      clearLayerToPool(sceneTwo.querySelector('.quote-hearts'));
+      clearLayerToPool(sceneTwo.querySelector('.heart-particles-layer'));
+      initSceneThree();
+    });
   };
 
   const revealSceneFour = () => {
@@ -579,17 +662,17 @@
         'rgba(233,30,140,0.6)','rgba(249,199,79,0.5)',
         'rgba(206,147,216,0.6)','rgba(255,255,255,0.4)'
       ];
-      for (let i = 0; i < 24; i++) {
-        const s = document.createElement('span');
+      const heartCount = isMobile ? 10 : 24;
+      for (let i = 0; i < heartCount; i++) {
+        const s = spanPool.get(heartsLayer, 'magical-heart-piece');
         s.textContent = syms[i % syms.length];
         s.style.cssText = `
           position:absolute; display:inline-block;
           font-size:${rand(0.8, 1.5)}rem;
           color:${cols[i % cols.length]};
-          text-shadow: 0 0 10px currentColor;
-          filter: blur(${Math.random() > 0.7 ? 0.5 : 0}px);
+          text-shadow: ${isMobile ? 'none' : '0 0 10px currentColor'};
+          filter: ${isMobile ? 'none' : 'blur(' + (Math.random() > 0.7 ? 0.5 : 0) + 'px)'};
         `;
-        heartsLayer.appendChild(s);
 
         gsap.set(s, { left: `${rand(0, 95)}%`, top: `${rand(-20, -5)}%` });
         gsap.to(s, {
@@ -598,7 +681,8 @@
           rotate: rand(0, 360),
           duration: rand(6, 12),
           repeat: -1, ease: 'none',
-          delay: i * 0.18
+          delay: i * 0.18,
+          force3D: true
         });
       }
     }
@@ -608,9 +692,9 @@
     if (particlesLayer) {
       particlesLayer.innerHTML = '';
       const butterflies = ['🦋','✿','❋'];
-      for (let i = 0; i < 8; i++) {
-        const b = document.createElement('span');
-        b.className = 'butterfly';
+      const butterflyCount = isMobile ? 3 : 8;
+      for (let i = 0; i < butterflyCount; i++) {
+        const b = spanPool.get(particlesLayer, 'butterfly');
         b.textContent = butterflies[i % butterflies.length];
         b.style.cssText = `
           font-size:${rand(0.7, 1.2)}rem;
@@ -618,7 +702,6 @@
           top:${rand(10, 70)}%;
           opacity:${rand(0.4, 0.7)};
         `;
-        particlesLayer.appendChild(b);
 
         gsap.to(b, {
           x: `${rand(-80, 80)}px`,
@@ -626,21 +709,22 @@
           duration: rand(5, 10),
           repeat: -1, yoyo: true,
           ease: 'sine.inOut',
-          delay: rand(0, 4)
+          delay: rand(0, 4),
+          force3D: true
         });
       }
 
       // Tiny glowing particles
-      for (let i = 0; i < 20; i++) {
-        const p = document.createElement('span');
+      const tinyParticleCount = isMobile ? 8 : 20;
+      for (let i = 0; i < tinyParticleCount; i++) {
+        const p = spanPool.get(particlesLayer, 'tiny-glow-piece');
         p.textContent = '♥';
         p.style.cssText = `
           position:absolute; display:inline-block;
           font-size:${rand(0.35, 0.65)}rem;
           color:rgba(233,30,140,${rand(0.3, 0.6)});
-          text-shadow:0 0 8px rgba(233,30,140,0.5);
+          text-shadow: ${isMobile ? 'none' : '0 0 8px rgba(233,30,140,0.5)'};
         `;
-        particlesLayer.appendChild(p);
 
         gsap.set(p, { left: `${rand(0, 100)}%`, top: `${rand(100, 115)}%` });
         gsap.to(p, {
@@ -648,7 +732,8 @@
           x: `${rand(-50, 50)}px`,
           duration: rand(4, 7),
           repeat: -1, ease: 'none',
-          delay: i * 0.12
+          delay: i * 0.12,
+          force3D: true
         });
       }
     }
@@ -686,8 +771,9 @@
     const container = document.getElementById('scene-three');
     if (!container) return;
 
-    for (let i = 0; i < 22; i++) {
-      const el = document.createElement('span');
+    const count = isMobile ? 9 : 22;
+    for (let i = 0; i < count; i++) {
+      const el = spanPool.get(container, 'countdown-particle');
       el.textContent = symbols[i % symbols.length];
       el.style.cssText = `
         position: absolute;
@@ -696,11 +782,10 @@
         transform: translate(-50%, -50%);
         font-size: ${rand(1.2, 2.0)}rem;
         color: ${colors[i % colors.length]};
-        text-shadow: 0 0 12px currentColor;
+        text-shadow: ${isMobile ? 'none' : '0 0 12px ' + colors[i % colors.length]};
         pointer-events: none;
         z-index: 10;
       `;
-      container.appendChild(el);
 
       const angle = rand(0, Math.PI * 2);
       const distance = rand(60, 180);
@@ -717,7 +802,8 @@
           rotate: rand(-180, 180),
           duration: rand(0.8, 1.4),
           ease: 'power2.out',
-          onComplete: () => el.remove()
+          force3D: true,
+          onComplete: () => spanPool.release(el)
         }
       );
     }
@@ -830,12 +916,17 @@
                   sceneThree.style.visibility = 'hidden';
                   sceneThree.style.opacity = '0';
 
+                  // Clear Scene Three particles to the pool to free up memory!
+                  clearLayerToPool(sceneThree.querySelector('.rotating-particles-layer'));
+                  clearLayerToPool(sceneThree.querySelector('.tiny-hearts-layer'));
+
                   initSceneFour();
 
                   gsap.to(flash, {
                     opacity: 0,
                     duration: 1.15,
-                    ease: 'power2.inOut'
+                    ease: 'power2.inOut',
+                    force3D: true
                   });
                 }
               }
@@ -856,6 +947,7 @@
       pulseLayer.appendChild(pr);
       gsap.fromTo(pr, { scale: 0.2, opacity: 0.75 }, {
         scale: 7, opacity: 0, duration: 2.1, ease: 'power3.out',
+        force3D: true,
         onComplete: () => pr.remove()
       });
     };
@@ -865,22 +957,22 @@
     /* ── Rotating particles ── */
     const rotLayer = sceneThree.querySelector('.rotating-particles-layer');
     if (rotLayer && !prefersReducedMotion) {
-      for (let ri = 0; ri < 18; ri++) {
-        const rp = document.createElement('span');
+      const rotParticleCount = isMobile ? 7 : 18;
+      for (let ri = 0; ri < rotParticleCount; ri++) {
+        const rp = spanPool.get(rotLayer, 'countdown-rotating-particle');
         rp.textContent = ['♥','✦','✧','♡'][ri % 4];
         const rRadius = rand(90, 170);
-        const rAngle  = (ri / 18) * Math.PI * 2;
+        const rAngle  = (ri / rotParticleCount) * Math.PI * 2;
         rp.style.cssText = `
           position:absolute; left:50%; top:50%;
           margin-left:-8px; margin-top:-8px;
           font-size:${rand(0.5, 1.0)}rem;
           color:${ri % 2 === 0 ? 'rgba(233,30,140,0.6)' : 'rgba(249,199,79,0.6)'};
-          text-shadow: 0 0 10px currentColor;
+          text-shadow: ${isMobile ? 'none' : '0 0 10px currentColor'};
           pointer-events:none; opacity:0;
         `;
-        rotLayer.appendChild(rp);
         gsap.set(rp, { x: Math.cos(rAngle) * rRadius, y: Math.sin(rAngle) * rRadius });
-        gsap.to(rp, { opacity: rand(0.4, 0.85), duration: 0.5, delay: ri * 0.07 });
+        gsap.to(rp, { opacity: rand(0.4, 0.85), duration: 0.5, delay: ri * 0.07, force3D: true });
       }
     }
 
@@ -961,6 +1053,7 @@
     };
 
     /* ── Fireworks — Premium, elegant, DOM particles behind cake ── */
+    /* ── Fireworks — Premium, elegant, DOM particles behind cake ── */
     const startFireworks = () => {
       const layer = sceneFour.querySelector('.fireworks-layer');
       if (!layer) return;
@@ -976,35 +1069,27 @@
       let activeFireworksCount = 0;
 
       const triggerBurst = (leftPx, topPx, color) => {
-        const burstContainer = document.createElement('div');
-        burstContainer.style.cssText = `
-          position: absolute;
-          left: ${leftPx}px;
-          top: ${topPx}px;
-          width: 0; height: 0;
-          pointer-events: none;
-          z-index: 2;
-        `;
-        layer.appendChild(burstContainer);
-
-        const particleCount = Math.floor(rand(20, 40));
+        const particleCount = Math.floor(rand(isMobile ? 12 : 20, isMobile ? 18 : 40));
         const explosionRadius = rand(60, 120);
 
         for (let i = 0; i < particleCount; i++) {
-          const dot = document.createElement('span');
-          dot.style.cssText = `
-            position: absolute;
-            left: 0; top: 0;
-            width: ${rand(3.5, 6)}px;
-            height: ${rand(3.5, 6)}px;
-            border-radius: 50%;
-            background: ${color};
-            box-shadow: 0 0 8px ${color}, 0 0 16px ${color};
-            transform: translate(-50%, -50%);
-            opacity: 0.95;
-            pointer-events: none;
-          `;
-          burstContainer.appendChild(dot);
+          const dot = spanPool.get(layer, 'firework-particle');
+          const size = rand(3.5, 6);
+          dot.style.left = `${leftPx}px`;
+          dot.style.top = `${topPx}px`;
+          dot.style.width = `${size}px`;
+          dot.style.height = `${size}px`;
+          dot.style.background = color;
+          dot.style.borderRadius = '50%';
+          dot.style.transform = 'translate(-50%, -50%)';
+          
+          if (isMobile) {
+            dot.style.boxShadow = `0 0 4px ${color}`;
+          } else {
+            dot.style.boxShadow = `0 0 8px ${color}, 0 0 16px ${color}`;
+          }
+
+          gsap.set(dot, { x: 0, y: 0, scale: 1, opacity: 0.95 });
 
           const angle = (i / particleCount) * Math.PI * 2 + rand(-0.25, 0.25);
           const dist = rand(0.3, 1.0) * explosionRadius;
@@ -1017,19 +1102,23 @@
             opacity: 0,
             scale: 0.2,
             duration: rand(1.2, 1.6),
-            ease: 'power2.out'
+            ease: 'power2.out',
+            force3D: true,
+            onComplete: () => {
+              spanPool.release(dot);
+            }
           });
         }
 
-        // Clean up the burst container after the particles fade away
+        // Clean up active count tracking
         gsap.delayedCall(1.6, () => {
-          burstContainer.remove();
           activeFireworksCount = Math.max(0, activeFireworksCount - 1);
         });
       };
 
       const spawnFirework = () => {
-        if (activeFireworksCount >= 3) return;
+        const maxActive = isMobile ? 2 : 3;
+        if (activeFireworksCount >= maxActive) return;
         activeFireworksCount++;
 
         const positions = ['left', 'center', 'right'];
@@ -1046,22 +1135,22 @@
         const targetTopPercent = rand(12, 38);
         const baseColor = colors[Math.floor(Math.random() * colors.length)];
 
-        // Use the actual container height/width to support mobile and viewport scaling perfectly
         const containerWidth = layer.clientWidth || window.innerWidth;
         const containerHeight = layer.clientHeight || window.innerHeight;
 
         const targetLeftPx = containerWidth * (targetLeftPercent / 100);
         const targetTopPx = containerHeight * (targetTopPercent / 100);
 
-        // Create launcher element (thin line: width 2px, height 30px with gradient to look like a trail)
+        // Create launcher element (thin line: width 2px, height 30px with gradient)
         const launcher = document.createElement('div');
+        launcher.className = 'firework-launcher';
         launcher.style.cssText = `
           position: absolute;
           left: ${targetLeftPx}px;
           top: ${containerHeight}px;
           width: 2px; height: 30px;
           background: linear-gradient(to bottom, ${baseColor}, transparent);
-          box-shadow: 0 0 10px ${baseColor}, 0 0 20px ${baseColor};
+          box-shadow: ${isMobile ? 'none' : '0 0 10px ' + baseColor + ', 0 0 20px ' + baseColor};
           opacity: 0.95;
           pointer-events: none;
           z-index: 2;
@@ -1075,6 +1164,7 @@
           scaleY: 0.6,
           duration: travelDuration,
           ease: 'power2.out',
+          force3D: true,
           onComplete: () => {
             launcher.remove();
             triggerBurst(targetLeftPx, targetTopPx, baseColor);
@@ -1085,8 +1175,9 @@
       // Launch immediately
       spawnFirework();
 
-      // Launch every 700ms using the global fireworkInterval
-      fireworkInterval = window.setInterval(spawnFirework, 700);
+      // Launch ticks using the global fireworkInterval (spawn interval: 1100ms on mobile)
+      const fireworkSpawnInterval = isMobile ? 1100 : 700;
+      fireworkInterval = window.setInterval(spawnFirework, fireworkSpawnInterval);
     };
 
     const stopFireworks = () => {
@@ -1094,6 +1185,11 @@
         window.clearInterval(fireworkInterval);
         fireworkInterval = null;
       }
+      // Recycle all active Scene Four particles to pool
+      clearLayerToPool(sceneFour.querySelector('.confetti-layer'));
+      clearLayerToPool(sceneFour.querySelector('.heart-orbit-layer'));
+      clearLayerToPool(sceneFour.querySelector('.stars-layer'));
+      clearLayerToPool(sceneFour.querySelector('.fireworks-layer'));
     };
 
     /* ── Confetti ── */
@@ -1103,9 +1199,9 @@
       layer.innerHTML = '';
 
       const colors = ['#ffd4e3','#ffe2a3','#e91e8c','#ffffff','#e8dcff','#f9c74f','#ba68c8'];
-      for (let i = 0; i < 50; i++) {
-        const piece = document.createElement('span');
-        piece.className = 'confetti-piece';
+      const confettiCount = isMobile ? 25 : 50;
+      for (let i = 0; i < confettiCount; i++) {
+        const piece = spanPool.get(layer, 'confetti-piece');
         piece.style.position   = 'absolute';
         piece.style.left       = `${rand(0, 100)}%`;
         piece.style.top        = `${rand(-25, -5)}%`;
@@ -1113,7 +1209,6 @@
         piece.style.transform  = `rotate(${rand(0, 360)}deg)`;
         piece.style.borderRadius = `${Math.random() > 0.5 ? '50%' : '2px'}`;
         piece.style.opacity    = `${rand(0.7, 1)}`;
-        layer.appendChild(piece);
 
         gsap.to(piece, {
           y: '120vh',
@@ -1124,7 +1219,8 @@
           duration: rand(3, 6),
           ease: 'power1.inOut',
           repeat: -1,
-          delay: i * 0.04
+          delay: i * 0.04,
+          force3D: true
         });
       }
     };
@@ -1135,8 +1231,9 @@
       if (!layer) return;
       layer.innerHTML = '';
 
-      for (let i = 0; i < 18; i++) {
-        const heartPiece = document.createElement('span');
+      const heartCount = isMobile ? 7 : 18;
+      for (let i = 0; i < heartCount; i++) {
+        const heartPiece = spanPool.get(layer, 'heart-orbit-particle');
         heartPiece.textContent = '❤️';
         heartPiece.style.cssText = `
           position: absolute;
@@ -1146,7 +1243,6 @@
           opacity: ${rand(0.2, 0.45)};
           pointer-events: none;
         `;
-        layer.appendChild(heartPiece);
 
         gsap.to(heartPiece, {
           y: `-=${rand(60, 140)}px`,
@@ -1156,7 +1252,8 @@
           repeat: -1,
           yoyo: true,
           ease: 'sine.inOut',
-          delay: rand(0, 4)
+          delay: rand(0, 4),
+          force3D: true
         });
       }
     };
@@ -1167,8 +1264,9 @@
       if (!layer) return;
       layer.innerHTML = '';
 
-      for (let i = 0; i < 30; i++) {
-        const star = document.createElement('span');
+      const sparkleCount = isMobile ? 12 : 30;
+      for (let i = 0; i < sparkleCount; i++) {
+        const star = spanPool.get(layer, 'sparkle-particle');
         star.style.cssText = `
           position: absolute;
           left: ${rand(5, 95)}%;
@@ -1177,11 +1275,10 @@
           height: ${rand(3, 7)}px;
           background: #fff;
           border-radius: 50%;
-          box-shadow: 0 0 12px #fff, 0 0 20px #ffb3d9;
+          box-shadow: ${isMobile ? '0 0 4px #fff' : '0 0 12px #fff, 0 0 20px #ffb3d9'};
           opacity: 0;
           pointer-events: none;
         `;
-        layer.appendChild(star);
 
         gsap.to(star, {
           opacity: rand(0.5, 0.95),
@@ -1190,7 +1287,8 @@
           repeat: -1,
           yoyo: true,
           ease: 'sine.inOut',
-          delay: rand(0, 3)
+          delay: rand(0, 3),
+          force3D: true
         });
       }
     };
@@ -1478,47 +1576,66 @@
       cursor.textContent = '|';
       letterText.appendChild(cursor);
 
-      for (let charIndex = 0; charIndex < bodyTextStr.length; charIndex++) {
-        const char = bodyTextStr[charIndex];
-        cursor.before(char);
+      let charIndex = 0;
+      let lastTime = performance.now();
+      let currentDelay = 35;
 
-        let delay = 35; // 35ms character speed
-        if (char === '.' || char === '!' || char === '?') {
-          delay = 300; // 300ms pause after periods
-        } else if (char === ',') {
-          delay = 150; // 150ms pause after commas
+      const startSignature = () => {
+        const sigLine1 = signoff.querySelector('.signoff-line-1');
+        const sigLine2 = signoff.querySelector('.signoff-line-2');
+        
+        gsap.set(signoff, { opacity: 1 });
+        
+        // Fade in With Lots of Love,
+        if (sigLine1) {
+          gsap.fromTo(sigLine1,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out', force3D: true }
+          );
         }
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+        
+        // Wait 300ms
+        gsap.delayedCall(0.3, () => {
+          // Fade in Prashanth ❤️
+          if (sigLine2) {
+            gsap.fromTo(sigLine2,
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out', force3D: true }
+            );
+          }
+        });
+      };
 
-      cursor.remove(); // remove cursor upon typewriter completion
+      const typeFrame = (now) => {
+        if (charIndex >= bodyTextStr.length) {
+          cursor.remove();
+          // Trigger the next step (Wait 500ms after body completes)
+          gsap.delayedCall(0.5, startSignature);
+          return;
+        }
 
-      // Wait 500ms after body completes
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const sigLine1 = signoff.querySelector('.signoff-line-1');
-      const sigLine2 = signoff.querySelector('.signoff-line-2');
-      
-      gsap.set(signoff, { opacity: 1 });
-      
-      // Fade in With Lots of Love,
-      if (sigLine1) {
-        gsap.fromTo(sigLine1,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out' }
-        );
-      }
-      
-      // Wait 300ms
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Fade in Prashanth ❤️
-      if (sigLine2) {
-        gsap.fromTo(sigLine2,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out' }
-        );
-      }
+        const elapsed = now - lastTime;
+        if (elapsed >= currentDelay) {
+          const char = bodyTextStr[charIndex];
+          cursor.before(char);
+          charIndex++;
+          lastTime = now;
+
+          // Compute delay for the next character
+          if (charIndex < bodyTextStr.length) {
+            const nextChar = bodyTextStr[charIndex];
+            currentDelay = 35;
+            if (nextChar === '.' || nextChar === '!' || nextChar === '?') {
+              currentDelay = 300;
+            } else if (nextChar === ',') {
+              currentDelay = 150;
+            }
+          }
+        }
+        requestAnimationFrame(typeFrame);
+      };
+
+      requestAnimationFrame(typeFrame);
     });
 
     // Zoom out + caption after typing completes (adjusted offset from 13.8 to 16.0s)

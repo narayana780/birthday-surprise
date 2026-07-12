@@ -154,3 +154,34 @@
     padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   }
 }
+
+/* Mobile Performance Optimizations */
+@media (max-width: 767px) {
+  /* Remove expensive backdrop-filters, reduce shadows, and use solid-looking premium dark backdrops on mobile */
+  .glass-card,
+  .passcode-panel,
+  .glass-key,
+  .digit-slot,
+  .panda-card,
+  .loading-card,
+  .scene-five-caption {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(22, 10, 38, 0.92) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  /* Optimize glow filters and set compositor hints on active particle elements */
+  .stars-layer span,
+  .firework-particle,
+  .confetti-piece,
+  .heart-orbit-particle,
+  .magical-particle-piece,
+  .passcode-particle-piece,
+  .countdown-particle {
+    text-shadow: none !important;
+    box-shadow: none !important;
+    will-change: transform, opacity;
+  }
+}
+
