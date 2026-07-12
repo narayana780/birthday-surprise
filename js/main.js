@@ -1542,40 +1542,76 @@
 
     startAmbientTone();
 
+    // Mobile scroll scaling setup
+    const updateScrollScale = () => {
+      if (window.innerWidth < 768) {
+        const targetWidth = 0.82 * window.innerWidth;
+        const targetHeightLimit = 0.68 * window.innerHeight;
+        
+        const scaleWidth = targetWidth / 450;
+        const scaleHeight = targetHeightLimit / 620;
+        const scaleLimitBySpace = (window.innerHeight - 140) / 620;
+        
+        const scale = Math.min(scaleWidth, scaleHeight, Math.max(0.1, scaleLimitBySpace));
+        document.documentElement.style.setProperty('--scroll-scale', scale);
+      } else {
+        document.documentElement.style.setProperty('--scroll-scale', 1);
+      }
+    };
+    
+    // Add resize listener if not already added
+    if (!window.scrollScaleListenerAdded) {
+      window.addEventListener('resize', updateScrollScale);
+      window.scrollScaleListenerAdded = true;
+    }
+    updateScrollScale();
+
     // Reset styles and ensure scroll starts rolled up
     letter.style.pointerEvents = 'auto';
     const topRoller = letter.querySelector('.scroll-roller-top');
     const bottomRoller = letter.querySelector('.scroll-roller-bottom');
     const wrapper = letter.querySelector('.scroll-body-wrapper');
 
-    if (wrapper) gsap.set(wrapper, { height: 0 });
-    if (bottomRoller) gsap.set(bottomRoller, { top: 12, rotateX: 0 });
-    if (topRoller) gsap.set(topRoller, { rotateX: 0 });
+    // Centered start rolled up positions
+    if (topRoller) gsap.set(topRoller, { top: 302, rotateX: 0 });
+    if (bottomRoller) gsap.set(bottomRoller, { top: 302, rotateX: 0 });
+    if (wrapper) gsap.set(wrapper, { top: 310, height: 0 });
 
     // Simple scroll container fade-in (scroll container stays fixed, no resizing/scaling)
     gsap.fromTo(letter,
       { opacity: 0 },
-      { opacity: 1, duration: 0.95, ease: 'power2.out' }
+      { opacity: 1, duration: 0.95, ease: 'power2.out', force3D: true }
     );
 
-    // Ancient royal scroll unrolls downward over 2.3 seconds (starts after fade-in at 0.95s)
+    // Smooth opening unroll animation (unrolls outward over 1.35 seconds)
     gsap.delayedCall(0.95, () => {
-      if (topRoller) gsap.to(topRoller, { rotateX: -360, duration: 2.3, ease: 'power2.inOut' });
-      if (bottomRoller) gsap.to(bottomRoller, { top: 'calc(100% - 16px)', rotateX: 360, duration: 2.3, ease: 'power2.inOut' });
-      if (wrapper) gsap.to(wrapper, { height: 'calc(100% - 28px)', duration: 2.3, ease: 'power2.inOut' });
+      if (topRoller) gsap.to(topRoller, { top: 0, rotateX: -360, duration: 1.35, ease: 'power3.out', force3D: true });
+      if (bottomRoller) gsap.to(bottomRoller, { top: 604, rotateX: 360, duration: 1.35, ease: 'power3.out', force3D: true });
+      if (wrapper) gsap.to(wrapper, { top: 14, height: 592, duration: 1.35, ease: 'power3.out', force3D: true });
     });
 
-    // Typewriter animation starts 400ms after scroll has completely opened (0.95 + 2.3 = 3.25s + 400ms = 3.65s)
-    gsap.delayedCall(3.65, async () => {
+    // Typewriter animation starts right after unrolling completes (0.95s + 1.35s = 2.30s -> delay to 2.45s)
+    gsap.delayedCall(2.45, () => {
       const bodyTextStr = "Thank you for being the gentle light in my life.\n\nYour kindness, warmth, and steady love have always made every ordinary day feel special.\n\nI hope this little note reminds you how deeply cherished you are.";
 
       letterText.innerHTML = '';
-      
-      const cursor = document.createElement('span');
-      cursor.className = 'typing-cursor';
-      cursor.textContent = '|';
-      letterText.appendChild(cursor);
+      const charSpans = [];
 
+      // Pre-populate character spans to prevent any text reflow or wrapping jumps
+      for (let i = 0; i < bodyTextStr.length; i++) {
+        const char = bodyTextStr[i];
+        if (char === '\n') {
+          const br = document.createElement('br');
+          letterText.appendChild(br);
+        } else {
+          const span = document.createElement('span');
+          span.textContent = char;
+          span.style.cssText = 'opacity: 0; display: inline; will-change: opacity;';
+          letterText.appendChild(span);
+          charSpans.push({ element: span, char: char });
+        }
+      }
+      
       let charIndex = 0;
       let lastTime = performance.now();
       let currentDelay = 35;
@@ -1607,8 +1643,7 @@
       };
 
       const typeFrame = (now) => {
-        if (charIndex >= bodyTextStr.length) {
-          cursor.remove();
+        if (charIndex >= charSpans.length) {
           // Trigger the next step (Wait 500ms after body completes)
           gsap.delayedCall(0.5, startSignature);
           return;
@@ -1616,18 +1651,18 @@
 
         const elapsed = now - lastTime;
         if (elapsed >= currentDelay) {
-          const char = bodyTextStr[charIndex];
-          cursor.before(char);
+          const item = charSpans[charIndex];
+          item.element.style.opacity = '1';
           charIndex++;
           lastTime = now;
 
           // Compute delay for the next character
-          if (charIndex < bodyTextStr.length) {
-            const nextChar = bodyTextStr[charIndex];
+          if (charIndex < charSpans.length) {
+            const nextItem = charSpans[charIndex];
             currentDelay = 35;
-            if (nextChar === '.' || nextChar === '!' || nextChar === '?') {
+            if (nextItem.char === '.' || nextItem.char === '!' || nextItem.char === '?') {
               currentDelay = 300;
-            } else if (nextChar === ',') {
+            } else if (nextItem.char === ',') {
               currentDelay = 150;
             }
           }
@@ -1638,8 +1673,8 @@
       requestAnimationFrame(typeFrame);
     });
 
-    // Zoom out + caption after typing completes (adjusted offset from 13.8 to 16.0s)
-    gsap.delayedCall(16.0, () => {
+    // Zoom out + caption after typing completes (adjusted offset to 12.8s)
+    gsap.delayedCall(12.8, () => {
       gsap.to(stage, { scale: 0.94, duration: 3.2, ease: 'power3.out' });
       if (caption) {
         caption.style.pointerEvents = 'auto';
@@ -1651,8 +1686,8 @@
       fadeAmbientTone();
     });
 
-    // Show Continue button (adjusted offset from 16.0 to 18.5s)
-    gsap.delayedCall(18.5, () => {
+    // Show Continue button (adjusted offset to 14.2s)
+    gsap.delayedCall(14.2, () => {
       // Create the beautiful Continue button
       const continueBtn = document.createElement('button');
       continueBtn.id = 'letter-continue-btn';

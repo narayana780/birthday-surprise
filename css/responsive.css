@@ -27,45 +27,43 @@
   .vintage-desk { padding: 0.75rem; }
   .table-surface { min-height: 65vh; }
   .envelope-card { height: 170px; }
-  .desk-letter { top: 25%; }
   .letter-paper { padding: 1rem; }
 }
 
 /* Mobile Scroll and Text Tuning */
 @media (max-width: 767px) {
-  .desk-letter {
-    width: min(90vw, 360px) !important;
-    height: clamp(380px, 66vh, 480px) !important;
-    max-height: 70vh !important;
-    transform: scale(0.88);
-    transform-origin: center center;
+  .scene-five-stage {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    overflow: hidden !important;
+    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
   }
-  .desk-scroll {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
+
+  #desk-letter {
+    position: relative !important;
+    width: 450px !important;
+    height: 620px !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform: scale(var(--scroll-scale, 1)) !important;
+    transform-origin: center center !important;
+    margin: 0 !important;
   }
-  .scroll-writing-area {
-    width: 82% !important;
-    max-width: 82% !important;
-    padding: 30px 0 !important;
+
+  #letter-continue-btn {
+    position: absolute !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 20 !important;
   }
-  .scroll-p {
-    margin-bottom: 12px !important;
-    font-size: clamp(12px, 3.4vw, 15px) !important;
-    line-height: 1.5 !important;
-    letter-spacing: 0.3px !important;
-  }
-  .letter-signoff-group {
-    margin-top: 14px !important;
-  }
-  .signoff-line-1,
-  .signoff-line-2 {
-    font-size: clamp(18px, 5.0vw, 24px) !important;
-  }
-  .signoff-line-2 {
-    margin-top: 6px !important;
+
+  .letter-text span {
+    will-change: opacity;
   }
 }
 
