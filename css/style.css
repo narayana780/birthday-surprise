@@ -1912,13 +1912,31 @@ button { font: inherit; }
 
 /* ─── LETTER PAPER ────────────────────────────────────────── */
 /* ─── SCROLL ────────────────────────────────────────── */
-.desk-letter {
-  position: relative;
+.scroll-flow-container {
+  --letter-btn-gap: 45px;
+  --btn-caption-gap: 35px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(var(--scroll-scale, 1));
+  transform-origin: center center;
   width: 450px;
-  height: 620px;
-  max-width: 95vw;
-  max-height: 90vh;
-  opacity: 0;
+  height: 900px; /* Encloses scroll (740px), continue button (~50px), caption (~30px), and gaps (45px & 35px) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 3;
+}
+
+.desk-letter {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 450px;
+  height: 740px;
+  opacity: 1; /* Made visible, opacity is controlled by parent scroll-flow-container */
   z-index: 3;
 }
 
@@ -1926,9 +1944,7 @@ button { font: inherit; }
   display: block; /* block layout for absolute unrolling coordinates */
   position: relative;
   width: 450px;
-  height: 620px;
-  max-width: 95vw;
-  max-height: 90vh;
+  height: 740px; /* Increased by 120px to prevent signature cutoff */
 }
 
 /* Wooden Roller styling */
@@ -2041,7 +2057,7 @@ button { font: inherit; }
   max-width: 82%;
   height: 100%;
   margin: 0 auto;
-  padding: 60px 0; /* 60px Top & Bottom padding */
+  padding: 60px 0 90px; /* 60px Top & 90px Bottom padding */
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -2117,12 +2133,13 @@ button { font: inherit; }
 
 /* ─── SCENE FIVE CAPTION & FADE ────────────────────────────── */
 .scene-five-caption {
-  position: absolute;
-  left: 50%;
-  bottom: 1.2rem;
+  position: relative;
+  left: auto;
+  bottom: auto;
+  transform: none;
   z-index: 3;
-  transform: translateX(-50%);
   width: min(94vw, 440px);
+  margin-top: var(--btn-caption-gap) !important; /* Dynamic gap below the Continue button */
   padding: 0.85rem 1.2rem;
   border-radius: 999px;
   text-align: center;

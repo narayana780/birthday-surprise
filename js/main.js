@@ -1537,25 +1537,36 @@
     const stage      = sceneFive.querySelector('.scene-five-stage');
     const caption    = document.getElementById('scene-five-caption');
     const fadeOverlay = sceneFive.querySelector('.scene-five-fade');
+    const flowContainer = document.getElementById('scroll-flow-container');
 
-    if (!letter || !letterText || !stage) return;
+    if (!letter || !letterText || !stage || !flowContainer) return;
 
     startAmbientTone();
 
-    // Mobile scroll scaling setup
+    // Scale calculation to guarantee viewport fitting on both desktop and mobile
     const updateScrollScale = () => {
-      if (window.innerWidth < 768) {
-        const targetWidth = 0.82 * window.innerWidth;
-        const targetHeightLimit = 0.68 * window.innerHeight;
+      const isMobileDevice = window.innerWidth < 768;
+      if (isMobileDevice) {
+        // Mobile specifications:
+        // Width: 90vw (max 340px)
+        // Scroll aspect ratio is locked at 450px wide, 740px tall.
+        const targetWidth = Math.min(0.90 * window.innerWidth, 340);
+        const targetScrollHeight = Math.min(0.75 * window.innerHeight, 620);
         
         const scaleWidth = targetWidth / 450;
-        const scaleHeight = targetHeightLimit / 620;
-        const scaleLimitBySpace = (window.innerHeight - 140) / 620;
+        const scaleHeight = targetScrollHeight / 740;
         
-        const scale = Math.min(scaleWidth, scaleHeight, Math.max(0.1, scaleLimitBySpace));
+        // Ensure everything fits in height: Flow container total height is 900px.
+        const scaleLimitBySpace = (window.innerHeight - 40) / 900;
+        
+        const scale = Math.min(scaleWidth, scaleHeight, scaleLimitBySpace);
         document.documentElement.style.setProperty('--scroll-scale', scale);
       } else {
-        document.documentElement.style.setProperty('--scroll-scale', 1);
+        // Desktop specification: scale scroll flow to fit inside height if viewport is small (total flow height 900px + 60px padding = 960px)
+        const scaleWidth = (0.90 * window.innerWidth) / 450;
+        const scaleHeight = (window.innerHeight - 60) / 900;
+        const scale = Math.min(1, scaleWidth, scaleHeight);
+        document.documentElement.style.setProperty('--scroll-scale', scale);
       }
     };
     
@@ -1572,22 +1583,27 @@
     const bottomRoller = letter.querySelector('.scroll-roller-bottom');
     const wrapper = letter.querySelector('.scroll-body-wrapper');
 
-    // Centered start rolled up positions
-    if (topRoller) gsap.set(topRoller, { top: 302, rotateX: 0 });
-    if (bottomRoller) gsap.set(bottomRoller, { top: 302, rotateX: 0 });
-    if (wrapper) gsap.set(wrapper, { top: 310, height: 0 });
+    // Centered start rolled up positions (Scroll height: 740px, center: 370px, wood cap offset: 8px)
+    if (topRoller) gsap.set(topRoller, { top: 362, rotateX: 0 });
+    if (bottomRoller) gsap.set(bottomRoller, { top: 362, rotateX: 0 });
+    if (wrapper) gsap.set(wrapper, { top: 370, height: 0 });
 
     // Simple scroll container fade-in (scroll container stays fixed, no resizing/scaling)
+    gsap.fromTo(flowContainer,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.95, ease: 'power2.inOut', force3D: true,
+        onComplete: () => { flowContainer.style.pointerEvents = 'auto'; } }
+    );
     gsap.fromTo(letter,
       { opacity: 0 },
-      { opacity: 1, duration: 0.95, ease: 'power2.out', force3D: true }
+      { opacity: 1, duration: 0.95, ease: 'power2.inOut', force3D: true }
     );
 
     // Smooth opening unroll animation (unrolls outward over 1.35 seconds)
     gsap.delayedCall(0.95, () => {
-      if (topRoller) gsap.to(topRoller, { top: 0, rotateX: -360, duration: 1.35, ease: 'power3.out', force3D: true });
-      if (bottomRoller) gsap.to(bottomRoller, { top: 604, rotateX: 360, duration: 1.35, ease: 'power3.out', force3D: true });
-      if (wrapper) gsap.to(wrapper, { top: 14, height: 592, duration: 1.35, ease: 'power3.out', force3D: true });
+      if (topRoller) gsap.to(topRoller, { top: 0, rotateX: -360, duration: 1.35, ease: 'power3.inOut', force3D: true });
+      if (bottomRoller) gsap.to(bottomRoller, { top: 724, rotateX: 360, duration: 1.35, ease: 'power3.inOut', force3D: true });
+      if (wrapper) gsap.to(wrapper, { top: 14, height: 712, duration: 1.35, ease: 'power3.inOut', force3D: true });
     });
 
     // Typewriter animation starts right after unrolling completes (0.95s + 1.35s = 2.30s -> delay to 2.45s)
@@ -1626,7 +1642,7 @@
         if (sigLine1) {
           gsap.fromTo(sigLine1,
             { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out', force3D: true }
+            { opacity: 1, y: 0, duration: 1.15, ease: 'power2.inOut', force3D: true }
           );
         }
         
@@ -1636,7 +1652,7 @@
           if (sigLine2) {
             gsap.fromTo(sigLine2,
               { opacity: 0, y: 10 },
-              { opacity: 1, y: 0, duration: 1.15, ease: 'power3.out', force3D: true }
+              { opacity: 1, y: 0, duration: 1.15, ease: 'power2.inOut', force3D: true }
             );
           }
         });
@@ -1695,11 +1711,9 @@
       continueBtn.type = 'button';
       continueBtn.setAttribute('aria-label', 'Continue to thank you screen');
       continueBtn.style.cssText = `
-        position: absolute;
-        bottom: 1.8rem;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
+        position: relative;
         z-index: 20;
+        margin-top: var(--letter-btn-gap) !important;
         padding: 0.75rem 2.4rem;
         font-family: 'Poppins', sans-serif;
         font-size: 1.05rem;
@@ -1716,10 +1730,18 @@
           0 8px 24px rgba(0,0,0,0.4),
           inset 0 1px 0 rgba(255,255,255,0.25);
         opacity: 0;
-        pointer-events: none;
         transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
       `;
-      sceneFive.appendChild(continueBtn);
+      
+      // Insert continueBtn right before caption inside the flow container
+      if (flowContainer && caption) {
+        flowContainer.insertBefore(continueBtn, caption);
+      } else {
+        sceneFive.appendChild(continueBtn);
+      }
+
+      // Set initial Y offset for entrance animation
+      gsap.set(continueBtn, { y: 15 });
 
       // Floating animation on button using GSAP
       gsap.to(continueBtn, {
@@ -1744,7 +1766,9 @@
         y: 0,
         duration: 0.9,
         ease: 'back.out(1.5)',
-        onComplete: () => { continueBtn.style.pointerEvents = 'auto'; }
+        onComplete: () => { 
+          continueBtn.style.pointerEvents = 'auto'; 
+        }
       });
 
       // Function to go to ending screen

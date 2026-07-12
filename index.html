@@ -278,8 +278,10 @@
       </div>
 
       <div class="scene-five-stage">
-        <!-- Letter Scroll -->
-        <div class="desk-letter desk-scroll" id="desk-letter" style="opacity: 0; pointer-events: none;">
+        <!-- Unified Scroll, Button and Caption Flow Container -->
+        <div class="scroll-flow-container" id="scroll-flow-container" style="opacity: 0; pointer-events: none;">
+          <!-- Letter Scroll -->
+          <div class="desk-letter desk-scroll" id="desk-letter">
           <!-- Top Roller -->
           <div class="scroll-roller scroll-roller-top">
             <div class="roller-wood"></div>
@@ -308,12 +310,14 @@
             <div class="roller-cap cap-left"></div>
             <div class="roller-cap cap-right"></div>
           </div>
+        </div> <!-- Closes desk-letter -->
+        
+        <!-- Bottom Caption -->
+        <div class="scene-five-caption" id="scene-five-caption" style="opacity: 0; pointer-events: none;">
+          <p>Our friendship will always remain beautiful ❤️</p>
         </div>
-      </div>
-
-      <div class="scene-five-caption" id="scene-five-caption" style="opacity: 0; pointer-events: none;">
-        <p>Our friendship will always remain beautiful ❤️</p>
-      </div>
+      </div> <!-- Closes scroll-flow-container -->
+    </div> <!-- Closes scene-five-stage -->
 
       <div class="scene-five-fade" aria-hidden="true"></div>
     </section>

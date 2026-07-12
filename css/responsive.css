@@ -40,30 +40,34 @@
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    padding: 0 !important;
+    padding-bottom: 24px !important;
+    box-sizing: border-box !important;
   }
 
-  #desk-letter {
-    position: relative !important;
-    width: 450px !important;
-    height: 620px !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: scale(var(--scroll-scale, 1)) !important;
-    transform-origin: center center !important;
-    margin: 0 !important;
+  .scroll-flow-container {
+    --letter-btn-gap: 35px !important;
+    --btn-caption-gap: 25px !important;
   }
 
-  #letter-continue-btn {
-    position: absolute !important;
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 20 !important;
+  /* Reduce heavy shadows on mobile for performance */
+  .scroll-body-wrapper {
+    box-shadow: 0 8px 25px rgba(20, 10, 4, 0.22) !important;
+  }
+
+  .scroll-roller {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25) !important;
   }
 
   .letter-text span {
     will-change: opacity;
+  }
+}
+
+/* Small heights spacing reduction */
+@media (max-height: 680px) {
+  .scroll-flow-container {
+    --letter-btn-gap: 25px !important;
+    --btn-caption-gap: 18px !important;
   }
 }
 
