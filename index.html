@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1a0a2e" />
+    <meta name="description" content="A premium, mobile-first birthday surprise — a cinematic interactive story." />
+    <title>Birthday Surprise ✨</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Allura&family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Cinzel:wght@600&family=Marcellus&family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/style.css?v=1.0.2" />
+    <link rel="stylesheet" href="css/responsive.css?v=1.0.2" />
+  </head>
+  <body>
+
+    <!-- ══════════════════════════════════════════
+         LOADING SCREEN
+    ══════════════════════════════════════════ -->
+    <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+      <div class="loading-card glass-card">
+        <div class="loading-particles" aria-hidden="true"></div>
+
+        <!-- Premium glowing heart loader -->
+        <div class="loading-heart-wrap" aria-hidden="true">
+          <div class="loading-heart-rings"></div>
+          <span class="loading-heart-pulse">❤️</span>
+        </div>
+
+        <div class="loading-copy">
+          <p class="loading-title">Preparing something magical just for you…</p>
+          <div class="loading-progress" aria-hidden="true">
+            <div class="loading-progress-track">
+              <div class="loading-progress-fill"></div>
+              <span class="loading-heart-icon">♥</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SCENE ONE — Gift Box + Passcode
+    ══════════════════════════════════════════ -->
+    <main class="scene-one-shell" id="scene-one" aria-label="Scene one">
+      <div class="scene-one-backdrop" aria-hidden="true">
+        <div class="scene-glow"></div>
+        <div class="soft-particles-layer"></div>
+        <div class="floating-hearts-layer"></div>
+        <!-- Cinematic Opening Hero Layers -->
+        <div class="bg-fog"></div>
+        <div class="gold-sparkles"></div>
+        <div class="magical-particles"></div>
+        <div class="hero-spotlight"></div>
+      </div>
+
+      <!-- Premium Gift Box -->
+      <div class="gift-box-container" id="gift-box-container" role="button" aria-label="Tap to open your gift">
+        <div class="gift-box" id="gift-box">
+          <!-- 3D Rendered Closed Gift Box (shown in idle state) -->
+          <img class="gift-box-img gift-box-closed-img" id="gift-box-closed-img" src="assets/images/gift-box-closed.png" alt="Gift Box Closed">
+          
+          <!-- 3D Rendered Box Base (shown during opening animation) -->
+          <img class="gift-box-img gift-box-bottom-img" id="gift-box-bottom-img" src="assets/images/gift-box-bottom.png" alt="Gift Box Base" style="display: none; opacity: 0;">
+          
+          <!-- 3D Rendered Box Lid (shown and animated during opening animation) -->
+          <img class="gift-box-img gift-box-lid-img" id="gift-box-lid-img" src="assets/images/gift-box-lid.png" alt="Gift Box Lid" style="display: none; opacity: 0;">
+          
+          <!-- Pink magical glow source -->
+          <div class="gift-glow-source" id="gift-glow-source"></div>
+        </div>
+        <div class="gift-text-wrap">
+          <p class="gift-title">A little surprise is waiting for you ❤️</p>
+          <p class="gift-subtitle">Tap the gift to open</p>
+        </div>
+      </div>
+
+      <!-- Glassmorphism Passcode Panel -->
+      <section class="passcode-panel passcode-panel--hidden" aria-labelledby="passcode-title">
+        <!-- Floating particles inside panel -->
+        <div class="passcode-particles" aria-hidden="true"></div>
+
+        <div class="polaroid-wrap">
+          <div class="polaroid-frame">
+            <div class="polaroid-photo">
+              <img class="portrait" src="assets/images/birthday-girl.png" alt="Birthday girl portrait" />
+            </div>
+          </div>
+          <p class="handwritten-caption">For the sweetest heart in my world</p>
+        </div>
+
+        <div class="passcode-content">
+          <h1 id="passcode-title">Enter Your Birthday ❤️</h1>
+          <div class="digit-display" role="group" aria-label="Birthday input">
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+            <div class="digit-slot" data-digit-slot></div>
+          </div>
+
+          <div class="keypad-grid" role="grid" aria-label="Numeric keypad">
+            <button class="glass-key" data-key="1" type="button">1</button>
+            <button class="glass-key" data-key="2" type="button">2</button>
+            <button class="glass-key" data-key="3" type="button">3</button>
+            <button class="glass-key" data-key="4" type="button">4</button>
+            <button class="glass-key" data-key="5" type="button">5</button>
+            <button class="glass-key" data-key="6" type="button">6</button>
+            <button class="glass-key" data-key="7" type="button">7</button>
+            <button class="glass-key" data-key="8" type="button">8</button>
+            <button class="glass-key" data-key="9" type="button">9</button>
+            <button class="glass-key" data-key="clear" type="button">Reset</button>
+            <button class="glass-key" data-key="0" type="button">0</button>
+            <button class="glass-key" data-key="delete" type="button">⌫</button>
+            <button class="glass-key glass-key--wide" data-key="enter" type="button">Enter ✨</button>
+          </div>
+
+          <p class="helper-text">Birthday format: DDMMYYYY · Example 09072008</p>
+        </div>
+
+        <div class="panda-message" id="panda-message" hidden>
+          <div class="panda-card">
+            <div class="panda-face" aria-hidden="true">
+              <svg viewBox="0 0 220 200" role="presentation">
+                <circle cx="110" cy="100" r="72" fill="#2c2430" />
+                <circle cx="82"  cy="92"  r="12" fill="#fff" />
+                <circle cx="138" cy="92"  r="12" fill="#fff" />
+                <circle cx="82"  cy="92"  r="6"  fill="#1f1b21" />
+                <circle cx="138" cy="92"  r="6"  fill="#1f1b21" />
+                <path d="M74 132c16 16 54 16 70 0" stroke="#e91e8c" stroke-width="7" stroke-linecap="round" fill="none" />
+                <path d="M92 58c10-16 29-16 40 0" stroke="#2c2430" stroke-width="8" stroke-linecap="round" fill="none" />
+              </svg>
+            </div>
+            <p class="panda-text">Oops!<br />That's not your birthday.<br />Please try again ❤️</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ══════════════════════════════════════════
+         SCENE TWO — Quote / Magical Forest
+    ══════════════════════════════════════════ -->
+    <section class="scene-two-shell" id="scene-two" hidden>
+      <div class="scene-two-backdrop" aria-hidden="true">
+        <div class="scene-glow scene-glow--quote"></div>
+        <div class="quote-spotlight"></div>
+        <div class="floating-hearts-layer quote-hearts"></div>
+        <div class="heart-particles-layer" id="quote-particles"></div>
+
+        <!-- Cinematic Forest Quote Layers -->
+        <div class="quote-magical-fog"></div>
+        <div class="quote-bench-silhouette"></div>
+      </div>
+
+      <div class="quote-content">
+        <div class="quote-decorative" aria-hidden="true">"</div>
+        <p class="quote-text" id="quote-text"></p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SCENE THREE — Countdown
+    ══════════════════════════════════════════ -->
+    <section class="scene-three-shell" id="scene-three" hidden>
+      <div class="scene-three-backdrop" aria-hidden="true">
+        <div class="scene-glow scene-glow--deep"></div>
+        <div class="expanding-light-pulse"></div>
+        <div class="rotating-particles-layer"></div>
+        <div class="tiny-hearts-layer"></div>
+        <div class="sparkles-layer sparkles-layer--bright"></div>
+      </div>
+
+      <div class="countdown-shell">
+        <!-- .countdown-inner stacks SVG and number via flex centering -->
+        <div class="countdown-inner">
+          <div class="countdown-number-glow" id="countdown-number" aria-live="polite"></div>
+          <svg class="countdown-svg" viewBox="0 0 100 100" aria-hidden="true"></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SCENE FOUR — Birthday Wishes + Cake
+    ══════════════════════════════════════════ -->
+    <section class="scene-four-shell" id="scene-four" hidden>
+      <div class="scene-four-backdrop" aria-hidden="true">
+        <div class="scene-flash"></div>
+        <div class="stars-layer"></div>
+        <div class="fireworks-layer"></div>
+        <div class="balloon-layer"></div>
+        <div class="confetti-layer"></div>
+        <div class="heart-orbit-layer"></div>
+        <div class="magical-fog-layer"></div>
+        <div class="bloom-lighting"></div>
+      </div>
+
+      <div class="scene-four-content">
+        <!-- Text reveal cascade -->
+        <div class="birthday-text">
+          <p  class="wish-line intro-line"    id="wish-intro"></p>
+          <h1 class="wish-line greeting-line" id="wish-greeting"></h1>
+          <h2 class="wish-line name-line"     id="wish-name"></h2>
+          <div class="wish-line heart-line"    id="wish-heart" style="opacity: 0;">❤️</div>
+        </div>
+
+        <!-- Premium birthday cake -->
+        <div class="cake-container">
+          <div class="cake-rise">
+            <div class="cake-plate"></div>
+            <div class="cake-layer layer-bottom"></div>
+            <div class="cake-layer layer-middle"></div>
+            <div class="cake-layer layer-top"></div>
+            <div class="cake-icing"></div>
+            <div class="cake-roses">
+              <div class="rose rose-1"><div class="leaf leaf-l"></div><div class="leaf leaf-r"></div></div>
+              <div class="rose rose-2"><div class="leaf leaf-l"></div><div class="leaf leaf-r"></div></div>
+              <div class="rose rose-3"><div class="leaf leaf-l"></div><div class="leaf leaf-r"></div></div>
+              <div class="rose rose-4"><div class="leaf leaf-l"></div><div class="leaf leaf-r"></div></div>
+            </div>
+            <div class="cake-decorations"></div>
+            <div class="candles" aria-hidden="true">
+              <span class="candle">
+                <div class="candle-glow"></div>
+                <span class="flame">
+                  <span class="flame-outer"></span>
+                  <span class="flame-core"></span>
+                </span>
+              </span>
+              <span class="candle">
+                <div class="candle-glow"></div>
+                <span class="flame">
+                  <span class="flame-outer"></span>
+                  <span class="flame-core"></span>
+                </span>
+              </span>
+              <span class="candle">
+                <div class="candle-glow"></div>
+                <span class="flame">
+                  <span class="flame-outer"></span>
+                  <span class="flame-core"></span>
+                </span>
+              </span>
+              <span class="candle">
+                <div class="candle-glow"></div>
+                <span class="flame">
+                  <span class="flame-outer"></span>
+                  <span class="flame-core"></span>
+                </span>
+              </span>
+              <span class="candle">
+                <div class="candle-glow"></div>
+                <span class="flame">
+                  <span class="flame-outer"></span>
+                  <span class="flame-core"></span>
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SCENE FIVE — Vintage Letter / Wooden Desk
+    ══════════════════════════════════════════ -->
+    <section class="scene-five-shell" id="scene-five" hidden>
+      <div class="scene-five-backdrop" aria-hidden="true">
+        <div class="scene-five-glow"></div>
+        <div class="scene-five-dust-layer"></div>
+      </div>
+
+      <div class="scene-five-stage">
+        <!-- Letter Scroll -->
+        <div class="desk-letter desk-scroll" id="desk-letter" style="opacity: 0; pointer-events: none;">
+          <!-- Top Roller -->
+          <div class="scroll-roller scroll-roller-top">
+            <div class="roller-wood"></div>
+            <div class="roller-cap cap-left"></div>
+            <div class="roller-cap cap-right"></div>
+          </div>
+          
+          <!-- Scroll Body (unrolls) -->
+          <div class="scroll-body-wrapper">
+            <div class="scroll-body parchment">
+              <div class="scroll-content">
+                <div class="scroll-writing-area">
+                  <div class="letter-text" data-letter-text></div>
+                  <div class="letter-signoff-group" data-signoff style="opacity: 0;">
+                    <p class="signoff-line-1">With Lots of Love,</p>
+                    <p class="signoff-line-2">Prashanth ❤️</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Roller -->
+          <div class="scroll-roller scroll-roller-bottom">
+            <div class="roller-wood"></div>
+            <div class="roller-cap cap-left"></div>
+            <div class="roller-cap cap-right"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scene-five-caption" id="scene-five-caption" style="opacity: 0; pointer-events: none;">
+        <p>Our friendship will always remain beautiful ❤️</p>
+      </div>
+
+      <div class="scene-five-fade" aria-hidden="true"></div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="js/main.js?v=1.0.2"></script>
+    <script src="js/animations.js?v=1.0.2"></script>
+    <script src="js/particles.js?v=1.0.2"></script>
+  </body>
+</html>

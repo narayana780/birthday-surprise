@@ -1,0 +1,117 @@
+/* ─── Responsive Overrides ─── */
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .gift-box { width: 110px; height: 110px; }
+  .gift-body { left: 9px; width: 92px; height: 84px; }
+  .gift-lid  { left: 2px; width: 106px; }
+  .gift-ribbon-v { left: 45px; width: 20px; height: 96px; }
+  .gift-ribbon-h { bottom: 30px; left: 9px; width: 92px; height: 18px; }
+  .gift-bow  { left: 42px; }
+
+  .passcode-content h1 { font-size: 1.15rem; }
+  .digit-slot { min-height: 36px; line-height: 36px; font-size: 0.95rem; }
+  .glass-key  { min-height: 42px; }
+
+  .greeting-line { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .name-line      { font-size: clamp(2.8rem, 12vw, 4rem); }
+}
+
+/* Regular phones */
+@media (max-width: 480px) {
+  .passcode-panel { padding: 1.2rem 1rem; }
+  .polaroid-frame { width: min(180px, 62vw); }
+  .keypad-grid { gap: 0.45rem; }
+  .glass-key { min-height: 46px; font-size: 0.95rem; }
+  .cake-rise { width: min(82vw, 220px); height: 200px; }
+  .vintage-desk { padding: 0.75rem; }
+  .table-surface { min-height: 65vh; }
+  .envelope-card { height: 170px; }
+  .desk-letter { top: 25%; }
+  .letter-paper { padding: 1rem; }
+}
+
+/* Tablets */
+@media (min-width: 768px) {
+  .passcode-panel {
+    padding: 2rem 1.8rem;
+    gap: 1.5rem;
+  }
+
+  .polaroid-frame { width: min(260px, 42vw); }
+
+  .passcode-content h1 { font-size: 1.6rem; }
+
+  .digit-slot {
+    min-height: 52px;
+    line-height: 52px;
+    font-size: 1.25rem;
+  }
+
+  .glass-key { min-height: 56px; font-size: 1.05rem; }
+
+  .birthday-text { padding-top: 3.5rem; }
+
+  .cake-rise { width: min(60vw, 280px); height: 260px; }
+
+  .vintage-desk { padding: 1.2rem; }
+
+  .envelope-card { height: 220px; }
+
+  .table-surface { min-height: 72vh; }
+
+  .quote-text { font-size: clamp(1.8rem, 4.5vw, 2.8rem); }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .tree-svg { width: min(72vw, 520px); }
+
+  .scene-four-content {
+    padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .name-line { font-size: clamp(4rem, 9vw, 7rem); }
+
+  .loading-card {
+    min-width: 380px;
+    padding: 3rem 2.5rem 2.5rem;
+  }
+
+  .loading-heart-pulse { font-size: 4rem; }
+  .loading-heart-wrap { width: 110px; height: 110px; }
+
+  .quote-content { max-width: 720px; }
+}
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+  .passcode-panel { width: min(100%, 480px); }
+  .cake-rise { width: min(46vw, 300px); height: 280px; }
+}
+
+/* Landscape on small phones */
+@media (max-height: 520px) and (orientation: landscape) {
+  .passcode-panel {
+    overflow-y: auto;
+    max-height: 92vh;
+  }
+
+  .polaroid-wrap { display: none; }
+
+  .birthday-text { padding-top: 1.2rem; }
+  .cake-rise { height: 150px; width: 160px; }
+
+  .table-surface { min-height: 55vh; }
+
+  .envelope-card { height: 150px; }
+}
+
+/* Safe area support (iPhone notch etc.) */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .scene-four-content,
+  .scene-five-stage {
+    padding-top: calc(1.5rem + env(safe-area-inset-top));
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+}
