@@ -1768,53 +1768,104 @@
 
       // Function to go to ending screen
       const goToEnding = () => {
+        // Clear the auto-continue timer
+        window.clearTimeout(autoTimer);
+        
+        // Disable button immediately
+        continueBtn.disabled = true;
         continueBtn.style.pointerEvents = 'none';
-        gsap.to(continueBtn, { opacity: 0, scale: 0.9, duration: 0.35, ease: 'power2.in' });
+        
+        // Kill any active letter/scene animations to prevent conflicts
+        gsap.killTweensOf(flowContainer);
+        gsap.killTweensOf(letter);
+        gsap.killTweensOf(continueBtn);
+        gsap.killTweensOf(caption);
+        gsap.killTweensOf(stage);
+        
+        // Hide the old section-scoped fade overlay if present
         if (fadeOverlay) {
-          gsap.to(fadeOverlay, { opacity: 1, duration: 2.2, ease: 'power2.inOut',
-            onComplete: () => {
-              // Ending screen
-              const ending = document.createElement('div');
-              ending.style.cssText = `
-                position:absolute; inset:0;
-                display:flex; flex-direction:column;
-                align-items:center; justify-content:center;
-                gap:1.2rem; opacity:0; z-index:10;
-                pointer-events:none;
-                background: #0d0520;
-              `;
-              const t1 = document.createElement('p');
-              t1.textContent = 'Thank You';
-              t1.style.cssText = `margin:0; font-family:'Great Vibes',cursive; font-size:3.5rem; color:#f9c74f; text-shadow:0 0 30px rgba(249,199,79,0.7);`;
-              const t2 = document.createElement('p');
-              t2.textContent = 'for being part of this beautiful journey ❤️';
-              t2.style.cssText = `margin:0; font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-style:italic; color:rgba(252,228,236,0.8); text-align:center; max-width:280px; line-height:1.7;`;
-              const t3 = document.createElement('p');
-              t3.textContent = 'Made with ❤️ by MEMORIS';
-              t3.style.cssText = `margin:0; font-family:'Poppins',sans-serif; font-size:0.8rem; color:rgba(249,199,79,0.6); letter-spacing:0.08em;`;
-              ending.appendChild(t1); ending.appendChild(t2); ending.appendChild(t3);
-              document.body.appendChild(ending);
-              gsap.to(ending, { opacity: 1, duration: 1.73, ease: 'power3.out' });
-
-              // Gentle floating hearts on ending
-              const syms = ['♥','✦','♡'];
-              for (let ei = 0; ei < 20; ei++) {
-                const eh = document.createElement('span');
-                eh.textContent = syms[ei % syms.length];
-                eh.style.cssText = `
-                  position:absolute;
-                  left:${rand(5,95)}%; top:${rand(20,90)}%;
-                  font-size:${rand(0.6,1.2)}rem;
-                  color:rgba(233,30,140,${rand(0.2,0.5)});
-                  opacity:0; pointer-events:none;
-                  text-shadow:0 0 10px currentColor;
-                `;
-                ending.appendChild(eh);
-                gsap.to(eh, { opacity: 1, y: `-=${rand(30,80)}px`, duration: rand(4,9), repeat:-1, yoyo:true, ease:'sine.inOut', delay: rand(0,3) });
-              }
-            }
-          });
+          fadeOverlay.style.display = 'none';
         }
+
+        // Fade out the entire letter flow container (Scroll, Button, Caption)
+        gsap.to(flowContainer, {
+          opacity: 0,
+          y: -10, // subtle lift out
+          duration: 0.4,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            // Hide the letter components completely
+            flowContainer.style.display = 'none';
+            flowContainer.style.visibility = 'hidden';
+            flowContainer.style.pointerEvents = 'none';
+            letter.style.display = 'none';
+            letter.style.visibility = 'hidden';
+            if (caption) {
+              caption.style.display = 'none';
+              caption.style.visibility = 'hidden';
+            }
+
+            // Create and append the Ending screen
+            const ending = document.createElement('div');
+            ending.id = 'thank-you-screen';
+            ending.style.cssText = `
+              position: fixed; inset: 0;
+              display: flex; flex-direction: column;
+              align-items: center; justify-content: center;
+              gap: 1.2rem; opacity: 0; z-index: 10000;
+              pointer-events: none;
+              background: #0d0520;
+            `;
+            const t1 = document.createElement('p');
+            t1.textContent = 'Thank You';
+            t1.style.cssText = `margin:0; font-family:'Great Vibes',cursive; font-size:3.5rem; color:#f9c74f; text-shadow:0 0 30px rgba(249,199,79,0.7);`;
+            const t2 = document.createElement('p');
+            t2.textContent = 'for being part of this beautiful journey ❤️';
+            t2.style.cssText = `margin:0; font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-style:italic; color:rgba(252,228,236,0.8); text-align:center; max-width:280px; line-height:1.7;`;
+            const t3 = document.createElement('p');
+            t3.textContent = 'Made with ❤️ by MEMORIS';
+            t3.style.cssText = `margin:0; font-family:'Poppins',sans-serif; font-size:0.8rem; color:rgba(249,199,79,0.6); letter-spacing:0.08em;`;
+            ending.appendChild(t1); ending.appendChild(t2); ending.appendChild(t3);
+            document.body.appendChild(ending);
+
+            // Fade in the Ending screen immediately
+            gsap.to(ending, {
+              opacity: 1,
+              duration: 0.5,
+              ease: 'power2.out',
+              onComplete: () => {
+                ending.style.pointerEvents = 'auto';
+                // Completely disable the old vintage letter scene to free resources and prevent flashing back
+                sceneFive.style.display = 'none';
+              }
+            });
+
+            // Gentle floating hearts on ending
+            const syms = ['♥','✦','♡'];
+            for (let ei = 0; ei < 20; ei++) {
+              const eh = document.createElement('span');
+              eh.textContent = syms[ei % syms.length];
+              eh.style.cssText = `
+                position: absolute;
+                left: ${rand(5,95)}%; top: ${rand(20,90)}%;
+                font-size: ${rand(0.6,1.2)}rem;
+                color: rgba(233, 30, 140, ${rand(0.2,0.5)});
+                opacity: 0; pointer-events: none;
+                text-shadow: 0 0 10px currentColor;
+              `;
+              ending.appendChild(eh);
+              gsap.to(eh, {
+                opacity: 1,
+                y: `-=${rand(30,80)}px`,
+                duration: rand(4,9),
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut',
+                delay: rand(0,3)
+              });
+            }
+          }
+        });
       };
 
       // Button click handler
